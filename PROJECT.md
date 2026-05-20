@@ -132,3 +132,22 @@ If you half-ass any of these, the project instantly drops from "strong" to "anot
 - Live demo is smooth and impressive in under 3 minutes.
 - Contains at least 3 non-trivial data visualizations with real value.
 - Clean, type-safe, well-structured codebase.
+
+## Project Files & Reference Rules
+
+This PROJECT.md is the single source of truth. All other files exist to support it.
+
+- **SCHEMA.md** — Database schema + RLS
+- **DECISIONS.md** — Tech stack & versions, architecture, and all major decisions/rationale (updated regularly)
+- **CONSTITUTION.md** — Non-negotiable rules and quality standards
+- **NOTES.md** — Personal scratchpad, current phase status, future ideas, lessons
+- **SCHEMA.md, DECISIONS.md, CONSTITUTION.md** must be referenced by the AI/agent in every major planning or implementation response.
+
+**Process Rule (Enforced):**
+Before starting any new Phase or major feature:
+1. Update PROJECT.md with clear goals
+2. Reference relevant files (DECISIONS, CONSTITUTION, SCHEMA)
+3. Plan happy path + error cases
+4. Implement → Manual test → Review code yourself → Commit
+
+New chat per Phase or complex feature. Do not let context bloat.
