@@ -1,6 +1,6 @@
 **PROJECT.md**
 
-**Project Name:** Adaptive Life OS (or "Forge" / "Vitalis" — pick a strong brand name)
+**Project Name:** Ascend PT
 
 **Tagline:** Your personal operating system for habits, fitness, and wellness that actually adapts to your life and shows you why you’re winning or failing.
 
