@@ -44,7 +44,7 @@ Build a **production-grade**, beautiful, and genuinely useful habit + fitness + 
 - Key metrics at a glance: weekly completion %, streak heatmaps, net worth-style “Life Score”.
 
 **Analytics & Insights (this is what makes it non-trash)**
-- Correlation engine: “Low energy days correlate with <X protein” or “Missed workouts after <6h sleep”.
+- Correlation engine: “Low energy days correlate with <X protein” or “Missed workouts after <6hrs sleep”.
 - Trend charts (habits adherence, strength progression, mood averages).
 - Weekly/Monthly reports.
 - Goal projections and variance.

@@ -1,9 +1,9 @@
 ### **DECISIONS.md**
 
-**Architectural & Technology Decisions - Adaptive Life OS**
+**Architectural & Technology Decisions - AAscend PT**
 
 **Core Stack**
-- **Frontend:** Next.js 15 (App Router) + TypeScript + Tailwind CSS + shadcn/ui
+- **Frontend:** Next.js 16 (App Router) + TypeScript + Tailwind CSS + shadcn/ui
 - **State Management:** Zustand + TanStack Query (React Query)
 - **Database:** Supabase (PostgreSQL + Auth + Storage + Realtime)
 - **Charts:** Tremor + Recharts (or lightweight Chart.js if needed)

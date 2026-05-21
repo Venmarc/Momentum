@@ -4,6 +4,7 @@ import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import Providers from "./components/providers";
 import Navigation from "./components/navigation";
+import { ensureProfile } from "./actions/auth-actions";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,11 +21,14 @@ export const metadata: Metadata = {
   description: "Personal operating system for habits, fitness, and wellness tracker",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Gracefully guarantee that Clerk profile matches a Supabase profile record
+  await ensureProfile();
+
   return (
     <ClerkProvider>
       <html
