@@ -106,7 +106,7 @@ export default async function DashboardPage() {
   const { data: profile } = await supabase
     .from('profiles')
     .select('*')
-    .eq('id', userId)
+    .eq('clerk_id', userId)
     .single();
 
   const displayName = profile?.full_name || profile?.username || 'Victor';
@@ -115,7 +115,7 @@ export default async function DashboardPage() {
   const { data: habits } = await supabase
     .from('habits')
     .select('*')
-    .eq('user_id', userId)
+    .eq('clerk_id', userId)
     .eq('is_active', true);
 
   const activeHabitsCount = habits?.length || 0;
@@ -123,7 +123,7 @@ export default async function DashboardPage() {
   const { data: todayLogs } = await supabase
     .from('habit_logs')
     .select('*')
-    .eq('user_id', userId)
+    .eq('clerk_id', userId)
     .eq('logged_date', todayStr);
 
   const completedTodayCount = todayLogs?.filter(l => l.completed).length || 0;
@@ -135,7 +135,7 @@ export default async function DashboardPage() {
   const { data: workouts } = await supabase
     .from('workouts')
     .select('*')
-    .eq('user_id', userId)
+    .eq('clerk_id', userId)
     .order('date', { ascending: false })
     .order('created_at', { ascending: false });
 
@@ -146,7 +146,7 @@ export default async function DashboardPage() {
   const { data: todayWellness } = await supabase
     .from('wellness_entries')
     .select('*')
-    .eq('user_id', userId)
+    .eq('clerk_id', userId)
     .eq('entry_date', todayStr)
     .single();
 

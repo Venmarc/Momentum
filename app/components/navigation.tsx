@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, CheckSquare, Dumbbell, Heart } from 'lucide-react';
+import { LayoutDashboard, CheckSquare, Dumbbell, Heart, TrendingUp } from 'lucide-react';
 import { UserButton } from '@clerk/nextjs';
 
 const navItems = [
@@ -10,6 +10,7 @@ const navItems = [
   { name: 'Habits', href: '/habits', icon: CheckSquare },
   { name: 'Fitness', href: '/fitness', icon: Dumbbell },
   { name: 'Wellness', href: '/wellness', icon: Heart },
+  { name: 'Progress', href: '/progress', icon: TrendingUp },
 ];
 
 export default function Navigation() {

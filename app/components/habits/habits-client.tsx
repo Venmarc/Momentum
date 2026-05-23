@@ -116,7 +116,7 @@ export default function HabitsClient({ initialHabits, initialLogs }: HabitsClien
           ...prev,
           {
             id: `temp-${Date.now()}`,
-            user_id: 'temp-user',
+            clerk_id: 'temp-user',
             ...logInput,
           },
         ];

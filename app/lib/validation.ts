@@ -60,3 +60,16 @@ export const wellnessInputSchema = z.object({
   sleep_quality: z.number().min(1).max(5, 'Sleep quality must be between 1 and 5'),
   notes: z.string().optional().nullable(),
 });
+
+// --- BODY MEASUREMENT SCHEMAS ---
+export const bodyMeasurementInputSchema = z.object({
+  id: z.string().uuid().optional().nullable(),
+  measured_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
+  weight_kg: z.number().min(0, 'Weight cannot be negative').optional().nullable(),
+  body_fat_pct: z.number().min(0, 'Body fat cannot be negative').max(100, 'Body fat cannot exceed 100%').optional().nullable(),
+  muscle_mass_kg: z.number().min(0, 'Muscle mass cannot be negative').optional().nullable(),
+  waist_cm: z.number().min(0, 'Waist cannot be negative').optional().nullable(),
+  chest_cm: z.number().min(0, 'Chest cannot be negative').optional().nullable(),
+  notes: z.string().optional().nullable(),
+  photo_urls: z.array(z.string()).optional().nullable(),
+});
