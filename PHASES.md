@@ -1,4 +1,4 @@
-et's# PHASES.md
+# PHASES.md
 
 Detailed development phases for **Momentum** (Habit/Fitness/Wellness Tracker).
 
