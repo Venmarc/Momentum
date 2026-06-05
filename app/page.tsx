@@ -110,7 +110,7 @@ export default async function DashboardPage() {
     .eq('clerk_id', userId)
     .single();
 
-  const displayName = profile?.full_name || profile?.username || 'Victor';
+  const displayName = profile?.username || profile?.full_name || 'User';
 
   // 2. Fetch habits stats
   const { data: habits } = await supabase

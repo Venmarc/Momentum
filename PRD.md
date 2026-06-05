@@ -1,6 +1,6 @@
 # PRD.md
 
-**Project:** Momentum  
+**Project:** Momentum
 **Document Type:** Product Requirements Document
 
 **Tagline:** Your personal operating system for habits, fitness, and wellness that actually adapts to your life and shows you why you’re winning or failing.

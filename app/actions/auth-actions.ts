@@ -54,28 +54,28 @@ export async function ensureProfile() {
 
   const serviceClient = createSupabaseServiceClient();
 
-  // Try to fetch profile first to avoid redundant updates
+  // Try to fetch profile first to check if updates are needed
   const { data: profile, error: fetchError } = await serviceClient
     .from('profiles')
-    .select('id')
+    .select('id, full_name, username, avatar_url')
     .eq('clerk_id', user.id)
     .single();
 
-  if (fetchError || !profile) {
-    // Generate fallback display names/usernames in case of blanks
-    const email = user.emailAddresses?.[0]?.emailAddress || '';
-    const emailFallback = email ? email.split('@')[0] : 'User';
-    const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || emailFallback;
-    const username = user.username || emailFallback;
-    const avatarUrl = user.imageUrl || null;
+  // Generate fallback display names/usernames in case of blanks
+  const email = user.emailAddresses?.[0]?.emailAddress || '';
+  const emailFallback = email ? email.split('@')[0] : 'User';
+  const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || null;
+  const username = user.username || emailFallback;
+  const avatarUrl = user.imageUrl || null;
 
+  if (fetchError || !profile) {
     console.log(`👤 Profile missing in Supabase for user ${user.id}. Syncing fallback...`);
 
     const { error: insertError } = await serviceClient
       .from('profiles')
       .upsert({
         clerk_id: user.id,
-        full_name: fullName,
+        full_name: fullName || emailFallback,
         username,
         avatar_url: avatarUrl,
         updated_at: new Date().toISOString(),
@@ -86,6 +86,22 @@ export async function ensureProfile() {
     } else {
       console.log(`✅ ensureProfile registered profile in Supabase for user ${user.id}`);
     }
+  } else if (
+    profile.full_name !== fullName ||
+    profile.username !== username ||
+    profile.avatar_url !== avatarUrl
+  ) {
+    console.log(`👤 Profile details changed in Clerk for user ${user.id}. Updating Supabase...`);
+    
+    await serviceClient
+      .from('profiles')
+      .update({
+        full_name: fullName,
+        username,
+        avatar_url: avatarUrl,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('clerk_id', user.id);
   }
 
   return { id: user.id };

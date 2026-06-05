@@ -58,12 +58,12 @@ export default function HabitsHeatmap({ logs, habits }: HabitsHeatmapProps) {
 
   return (
     <div className="bg-white/[0.04] backdrop-blur-[20px] border border-white/[0.08] rounded-2xl p-6 shadow-xl">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
         <div>
           <h3 className="text-lg font-semibold text-white">Habit Consistency Heatmap</h3>
           <p className="text-xs text-[#a1a1aa] mt-0.5">Visualize your check-in adherence over the last 26 weeks.</p>
         </div>
-        <div className="flex gap-2 items-center text-[10px] text-[#a1a1aa]">
+        <div className="flex gap-2 items-center text-[10px] text-[#a1a1aa] select-none">
           <span>Less</span>
           <div className="w-3 h-3 rounded bg-white/[0.03] border border-white/[0.02]"></div>
           <div className="w-3 h-3 rounded bg-red-500/10 border border-red-500/20"></div>
@@ -75,7 +75,7 @@ export default function HabitsHeatmap({ logs, habits }: HabitsHeatmapProps) {
       </div>
 
       <div className="overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
-        <div className="flex gap-2 min-w-[650px] justify-start md:justify-center py-2">
+        <div className="flex gap-2 min-w-[540px] justify-start md:justify-center py-2">
           {/* Day of week labels */}
           <div className="grid grid-rows-7 gap-1.5 text-[10px] text-[#a1a1aa] pr-2 pt-5 select-none font-medium justify-items-end">
             <span className="h-3 leading-3">Mon</span>
@@ -101,7 +101,7 @@ export default function HabitsHeatmap({ logs, habits }: HabitsHeatmapProps) {
                     {isFirstWeekOfMonth ? format(firstDayOfWeek, 'MMM') : ''}
                   </span>
 
-                  {week.map((day) => (
+                  {week.map((day, dIndex) => (
                     <div
                       key={day.dateStr}
                       className={`w-full aspect-square rounded-[3px] transition-all duration-150 cursor-pointer relative group ${getCellClass(
@@ -118,8 +118,10 @@ export default function HabitsHeatmap({ logs, habits }: HabitsHeatmapProps) {
                           alignmentClass = "left-0 translate-x-0 right-auto";
                         }
 
+                        const verticalClass = dIndex <= 2 ? "top-full mt-2" : "bottom-full mb-2";
+
                         return (
-                          <div className={`absolute bottom-full mb-2 hidden group-hover:block z-30 bg-black/95 backdrop-blur-md border border-white/10 rounded-lg p-2 shadow-2xl text-[10px] text-white whitespace-nowrap pointer-events-none transition-opacity duration-200 ${alignmentClass}`}>
+                          <div className={`absolute ${verticalClass} ${alignmentClass} hidden group-hover:block z-30 bg-black/95 backdrop-blur-md border border-white/10 rounded-lg p-2 shadow-2xl text-[10px] text-white whitespace-nowrap pointer-events-none transition-opacity duration-200`}>
                             <p className="font-semibold">{format(day.date, 'MMMM d, yyyy')}</p>
                             {day.totalLogged > 0 ? (
                               <p className="text-emerald-400 mt-0.5">

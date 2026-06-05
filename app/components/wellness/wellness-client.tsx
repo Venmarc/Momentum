@@ -524,14 +524,14 @@ export default function WellnessClient({ initialEntries }: WellnessClientProps) 
                             })}
                           </span>
 
-                          <div className="flex gap-2">
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center gap-1">
+                          <div className="flex flex-wrap gap-2">
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center gap-1 whitespace-nowrap shrink-0">
                               {entryMoodObj?.emoji || '😐'} {entryMoodObj?.label || 'Okay'}
                             </span>
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center gap-1">
-                              ⚡ {entry.energy}
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center gap-1 whitespace-nowrap shrink-0">
+                              ⚡ {entryEnergyObj?.label || entry.energy}
                             </span>
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center gap-1">
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center gap-1 whitespace-nowrap shrink-0">
                               🌙 {Number(entry.sleep_hours).toFixed(1)}h (Quality: {entry.sleep_quality}★)
                             </span>
                           </div>

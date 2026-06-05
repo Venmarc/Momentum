@@ -290,16 +290,16 @@ export default function FitnessClient({
 
                     <div className="flex items-center justify-between md:justify-end gap-6 border-t md:border-t-0 border-[#1e1e22] pt-3 md:pt-0">
                       {/* Telemetry metrics */}
-                      <div className="flex items-center gap-4 text-xs font-semibold text-[#f4f4f5]">
+                      <div className="flex items-center gap-3 text-xs font-semibold text-[#f4f4f5] flex-wrap">
                         {w.total_duration_minutes && (
-                          <span className="flex items-center gap-1 bg-[#18181b] border border-[#27272a] px-2.5 py-1 rounded-lg">
-                            <Clock className="w-3.5 h-3.5 text-brand-success" />
+                          <span className="flex items-center gap-1.5 bg-[#18181b] border border-[#27272a] px-2.5 py-1.5 rounded-lg whitespace-nowrap shrink-0">
+                            <Clock className="w-3.5 h-3.5 text-brand-success shrink-0" />
                             {w.total_duration_minutes} min
                           </span>
                         )}
                         {w.total_volume_kg && w.total_volume_kg > 0 ? (
-                          <span className="flex items-center gap-1 bg-[#18181b] border border-[#27272a] px-2.5 py-1 rounded-lg">
-                            <Flame className="w-3.5 h-3.5 text-brand-success" />
+                          <span className="flex items-center gap-1.5 bg-[#18181b] border border-[#27272a] px-2.5 py-1.5 rounded-lg whitespace-nowrap shrink-0">
+                            <Flame className="w-3.5 h-3.5 text-brand-success shrink-0" />
                             {w.total_volume_kg.toLocaleString()} kg
                           </span>
                         ) : null}

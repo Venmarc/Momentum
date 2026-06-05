@@ -56,3 +56,13 @@ body {
 .animate-soft-pulse {
   animation: soft-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
+
+/* Tactile bouncy click transition */
+.active-bounce {
+  transition: transform 0.1s cubic-bezier(0.25, 0.8, 0.25, 1), filter 0.1s ease;
+}
+.active-bounce:active {
+  transform: scale(0.96);
+  filter: brightness(0.92);
+}
+

@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import Providers from "./components/providers";
-import Navigation from "./components/navigation";
+import LayoutShell from "./components/layout-shell";
 import ToastContainer from "./components/toast-container";
 import { ensureProfile } from "./actions/auth-actions";
 
@@ -39,16 +39,9 @@ export default async function RootLayout({
       >
         <body className="min-h-full bg-[#030303] text-[#f4f4f5] flex flex-col md:flex-row font-sans">
           <Providers>
-            {/* Global Navigation Side/Bottom Shell */}
-            <Navigation />
-            
-            {/* Main Content Pane */}
-            <div className="flex-1 flex flex-col min-h-screen pt-16 md:pt-0 md:pl-64 pb-16 md:pb-0">
-              <main className="flex-1 flex flex-col">
-                {children}
-              </main>
-            </div>
-            
+            <LayoutShell>
+              {children}
+            </LayoutShell>
             <ToastContainer />
           </Providers>
         </body>
