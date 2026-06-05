@@ -6,7 +6,7 @@ import { deleteWorkout } from '@/app/actions/fitness-actions';
 import { toast } from '@/app/hooks/use-toast';
 import WorkoutLogger from './workout-logger';
 import { 
-  Dumbbell, Clock, Flame, Calendar, Plus, Trash2, 
+  Dumbbell, Clock, Flame, Calendar, Plus, Trash2, Edit3,
   ChevronDown, ChevronUp, Play, Trophy, Heart, Activity, User 
 } from 'lucide-react';
 
@@ -24,6 +24,8 @@ interface WorkoutExercise {
   sets: Array<{
     reps: number;
     weight_kg: number;
+    duration_seconds?: number | null;
+    bodyweight_multiplier?: number | null;
     rpe: number | null;
     notes: string | null;
   }>;
@@ -110,7 +112,7 @@ export default function FitnessClient({
   const [expandedWorkouts, setExpandedWorkouts] = useState<Record<string, boolean>>({});
   const [isDeleting, startDeleting] = useTransition();
 
-  const { isActive, startWorkout } = useWorkoutStore();
+  const { isActive, startWorkout, editWorkout } = useWorkoutStore();
 
   const handleStartEmpty = () => {
     startWorkout('Empty Workout', []);
@@ -307,10 +309,21 @@ export default function FitnessClient({
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
+                            editWorkout(w);
+                          }}
+                          className="p-1.5 rounded-lg hover:bg-zinc-800 text-[#71717a] hover:text-brand-success transition-colors"
+                          title="Edit Workout"
+                        >
+                          <Edit3 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
                             handleDelete(w.id);
                           }}
                           disabled={isDeleting}
                           className="p-1.5 rounded-lg hover:bg-red-950/20 text-[#71717a] hover:text-red-500 transition-colors"
+                          title="Delete Workout"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -342,20 +355,35 @@ export default function FitnessClient({
                             </h4>
 
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 pl-4">
-                              {we.sets.map((set, setIndex) => (
-                                <div 
-                                  key={setIndex}
-                                  className="bg-[#121214] border border-[#27272a] rounded-lg p-2 flex flex-col justify-center space-y-0.5"
-                                >
-                                  <span className="text-[9px] text-[#71717a] uppercase font-bold">Set {setIndex + 1}</span>
-                                  <span className="text-xs text-white font-semibold font-mono">
-                                    {set.weight_kg > 0 ? `${set.weight_kg}kg × ` : ''}{set.reps} reps
-                                  </span>
-                                  {set.rpe && (
-                                    <span className="text-[9px] text-[#a1a1aa] font-medium">RPE {set.rpe}</span>
-                                  )}
-                                </div>
-                              ))}
+                              {we.sets.map((set, setIndex) => {
+                                const isCardio = we.exercise?.category?.toLowerCase() === 'endurance' || we.exercise?.category?.toLowerCase() === 'cardio';
+                                return (
+                                  <div 
+                                    key={setIndex}
+                                    className="bg-[#121214] border border-[#27272a] rounded-lg p-2.5 flex flex-col justify-center space-y-0.5"
+                                  >
+                                    <span className="text-[9px] text-[#71717a] uppercase font-bold">Set {setIndex + 1}</span>
+                                    {isCardio && set.duration_seconds ? (() => {
+                                      const mins = Math.floor(set.duration_seconds / 60);
+                                      const secs = set.duration_seconds % 60;
+                                      return (
+                                        <span className="text-xs text-white font-semibold font-mono">
+                                          {mins}:${String(secs).padStart(2, '0')}
+                                        </span>
+                                      );
+                                    })() : (
+                                      <span className="text-xs text-white font-semibold font-mono">
+                                        {set.bodyweight_multiplier ? 'BW + ' : ''}
+                                        {set.weight_kg > 0 ? `${set.weight_kg}kg × ` : ''}
+                                        {set.reps} reps
+                                      </span>
+                                    )}
+                                    {set.rpe && (
+                                      <span className="text-[9px] text-[#a1a1aa] font-medium">RPE {set.rpe}</span>
+                                    )}
+                                  </div>
+                                );
+                              })}
                             </div>
                           </div>
                         ))}

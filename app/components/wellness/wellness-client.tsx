@@ -65,6 +65,8 @@ export default function WellnessClient({ initialEntries }: WellnessClientProps) 
   const [notes, setNotes] = useState<string>('');
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [deleteDateStr, setDeleteDateStr] = useState<string>('');
 
   // Journal prompt selection
   const [activePromptIndex, setActivePromptIndex] = useState<number>(4); // Default to Free Writing
@@ -151,11 +153,12 @@ export default function WellnessClient({ initialEntries }: WellnessClientProps) 
     }
   };
 
-  const handleDelete = async (id: string, dateStr: string) => {
-    if (!confirm(`Are you sure you want to delete the wellness log for ${dateStr}?`)) {
-      return;
-    }
+  const handleDeleteTrigger = (id: string, dateStr: string) => {
+    setDeleteId(id);
+    setDeleteDateStr(dateStr);
+  };
 
+  const confirmDelete = async (id: string) => {
     try {
       const res = await deleteWellnessEntry(id);
       if (res.error) {
@@ -167,6 +170,9 @@ export default function WellnessClient({ initialEntries }: WellnessClientProps) 
     } catch (err) {
       console.error(err);
       toast.error('An error occurred deleting the log.');
+    } finally {
+      setDeleteId(null);
+      setDeleteDateStr('');
     }
   };
 
@@ -554,9 +560,9 @@ export default function WellnessClient({ initialEntries }: WellnessClientProps) 
                         </button>
                         
                         <button
-                          onClick={() => handleDelete(entry.id, entry.entry_date)}
-                          className="p-1.5 border border-[#27272a] hover:border-red-500/20 bg-transparent text-[#71717a] hover:text-red-400 rounded-xl transition-all"
-                        >
+                           onClick={() => handleDeleteTrigger(entry.id, entry.entry_date)}
+                           className="p-1.5 border border-[#27272a] hover:border-red-500/20 bg-transparent text-[#71717a] hover:text-red-400 rounded-xl transition-all"
+                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
@@ -569,6 +575,46 @@ export default function WellnessClient({ initialEntries }: WellnessClientProps) 
 
           </div>
 
+        </div>
+      )}
+
+      {/* Custom Confirmation Modal */}
+      {deleteId && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+          <div className="bg-[#09090b] border border-[#27272a] rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="flex items-center gap-3 text-red-500">
+              <AlertCircle className="w-5 h-5" />
+              <h3 className="font-bold text-white text-sm">Delete Wellness Log?</h3>
+            </div>
+            
+            <p className="text-xs text-[#a1a1aa] leading-relaxed">
+              Are you sure you want to delete the wellness log for <span className="text-white font-semibold">{deleteDateStr}</span>? This action cannot be undone.
+            </p>
+            
+            <div className="flex justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setDeleteId(null);
+                  setDeleteDateStr('');
+                }}
+                className="px-3.5 py-2 rounded-xl text-xs font-semibold text-[#a1a1aa] bg-transparent hover:bg-zinc-900 border border-[#27272a] hover:border-zinc-800 transition-all cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (deleteId) {
+                    confirmDelete(deleteId);
+                  }
+                }}
+                className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-red-600 hover:bg-red-500 transition-all cursor-pointer"
+              >
+                Delete Log
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

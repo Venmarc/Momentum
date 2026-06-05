@@ -94,12 +94,29 @@ export async function saveWorkout(input: SaveWorkoutInput) {
     const { workoutId, name, date, duration, notes, exercises } = parsed.data;
     const supabase = createSupabaseServiceClient();
 
-    // Calculate total volume: weight * reps for completed sets only
+    // Fetch user's latest logged bodyweight to use in bodyweight exercises volume calculation
+    let userBodyweight = 70; // Fallback default
+    const { data: latestMeasurement } = await supabase
+      .from('body_measurements')
+      .select('weight_kg')
+      .eq('clerk_id', userId)
+      .order('measured_date', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (latestMeasurement?.weight_kg) {
+      userBodyweight = Number(latestMeasurement.weight_kg);
+    }
+
+    // Calculate total volume: (weight + user_weight * multiplier) * reps for completed sets only
     let totalVolume = 0;
     exercises.forEach((ex) => {
       ex.sets.forEach((set) => {
         if (set.completed !== false) {
-          totalVolume += (set.weight_kg || 0) * (set.reps || 0);
+          const reps = set.reps || 0;
+          const weight = set.weight_kg || 0;
+          const multiplier = set.bodyweight_multiplier || 0;
+          totalVolume += reps * (weight + (userBodyweight * multiplier));
         }
       });
     });

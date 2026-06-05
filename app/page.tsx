@@ -7,6 +7,7 @@ import {
   CheckSquare, Dumbbell, Heart, Activity, TrendingUp, Calendar, 
   Clock, ArrowRight, UserPlus, LogIn, ChevronRight, CheckCircle2, Circle
 } from 'lucide-react';
+import BodyCompWidget from '@/app/components/dashboard/body-comp-widget';
 
 export const metadata = {
   title: 'Dashboard | Momentum',
@@ -150,6 +151,15 @@ export default async function DashboardPage() {
     .eq('entry_date', todayStr)
     .single();
 
+  // 5. Fetch latest body measurement
+  const { data: latestMeasurement } = await supabase
+    .from('body_measurements')
+    .select('*')
+    .eq('clerk_id', userId)
+    .order('measured_date', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
   // Format today's human-readable date
   const displayDate = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
@@ -282,52 +292,59 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* Wellness snapshot widget row */}
-      <div className="bg-[#09090b] border border-[#27272a] rounded-2xl p-5 space-y-4">
-        <div className="flex items-center justify-between border-b border-[#27272a] pb-2">
-          <h2 className="text-sm font-bold text-white flex items-center gap-2">
-            <Heart className="w-4.5 h-4.5 text-pink-400" />
-            Wellness Log
-          </h2>
-          <span className="text-[10px] bg-pink-500/10 border border-pink-500/20 text-pink-400 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">
-            {todayWellness ? 'Logged' : 'Pending'}
-          </span>
+      {/* Wellness snapshot & Body Composition Row */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Wellness snapshot widget */}
+        <div className="bg-[#09090b] border border-[#27272a] rounded-2xl p-5 space-y-4 flex flex-col justify-between">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between border-b border-[#27272a] pb-2">
+              <h2 className="text-sm font-bold text-white flex items-center gap-2">
+                <Heart className="w-4.5 h-4.5 text-pink-400" />
+                Wellness Log
+              </h2>
+              <span className="text-[10px] bg-pink-500/10 border border-pink-500/20 text-pink-400 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                {todayWellness ? 'Logged' : 'Pending'}
+              </span>
+            </div>
+
+            {todayWellness ? (
+              <div className="grid grid-cols-2 gap-2.5">
+                <div className="bg-[#121214] border border-[#1e1e22] rounded-xl p-2.5 flex flex-col justify-center">
+                  <span className="text-[8px] text-[#71717a] font-bold uppercase tracking-wider">Mood Index</span>
+                  <span className="text-xs font-extrabold text-white mt-0.5">{todayWellness.mood} / 5</span>
+                </div>
+                <div className="bg-[#121214] border border-[#1e1e22] rounded-xl p-2.5 flex flex-col justify-center">
+                  <span className="text-[8px] text-[#71717a] font-bold uppercase tracking-wider">Energy Level</span>
+                  <span className="text-xs font-extrabold text-white mt-0.5">{todayWellness.energy} / 5</span>
+                </div>
+                <div className="bg-[#121214] border border-[#1e1e22] rounded-xl p-2.5 flex flex-col justify-center">
+                  <span className="text-[8px] text-[#71717a] font-bold uppercase tracking-wider">Sleep Hours</span>
+                  <span className="text-xs font-extrabold text-white mt-0.5">{todayWellness.sleep_hours} hrs</span>
+                </div>
+                <div className="bg-[#121214] border border-[#1e1e22] rounded-xl p-2.5 flex flex-col justify-center">
+                  <span className="text-[8px] text-[#71717a] font-bold uppercase tracking-wider">Sleep Quality</span>
+                  <span className="text-xs font-extrabold text-white mt-0.5">{todayWellness.sleep_quality} / 5</span>
+                </div>
+              </div>
+            ) : (
+              <div className="py-2">
+                <p className="text-xs font-semibold text-white">How are you feeling today?</p>
+                <p className="text-[10px] text-[#a1a1aa] mt-0.5">Quickly track your daily sleep duration, energy level, and mood scores.</p>
+              </div>
+            )}
+          </div>
+
+          <Link
+            href="/wellness"
+            className="w-full mt-2 py-2 bg-[#121214] hover:bg-[#18181b] border border-[#27272a] hover:border-pink-500/25 text-pink-400 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1"
+          >
+            Log Wellness
+            <ChevronRight className="w-3.5 h-3.5" />
+          </Link>
         </div>
 
-        {todayWellness ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-[#121214] border border-[#1e1e22] rounded-xl p-3 flex flex-col justify-center">
-              <span className="text-[9px] text-[#71717a] font-bold uppercase">Mood Index</span>
-              <span className="text-sm font-extrabold text-white mt-0.5">{todayWellness.mood} / 5</span>
-            </div>
-            <div className="bg-[#121214] border border-[#1e1e22] rounded-xl p-3 flex flex-col justify-center">
-              <span className="text-[9px] text-[#71717a] font-bold uppercase">Energy Level</span>
-              <span className="text-sm font-extrabold text-white mt-0.5">{todayWellness.energy} / 5</span>
-            </div>
-            <div className="bg-[#121214] border border-[#1e1e22] rounded-xl p-3 flex flex-col justify-center">
-              <span className="text-[9px] text-[#71717a] font-bold uppercase">Sleep Hours</span>
-              <span className="text-sm font-extrabold text-white mt-0.5">{todayWellness.sleep_hours} hrs</span>
-            </div>
-            <div className="bg-[#121214] border border-[#1e1e22] rounded-xl p-3 flex flex-col justify-center">
-              <span className="text-[9px] text-[#71717a] font-bold uppercase">Sleep Quality</span>
-              <span className="text-sm font-extrabold text-white mt-0.5">{todayWellness.sleep_quality} / 5</span>
-            </div>
-          </div>
-        ) : (
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2">
-            <div>
-              <p className="text-xs font-semibold text-white">How are you feeling today?</p>
-              <p className="text-[10px] text-[#a1a1aa] mt-0.5">Quickly track your daily sleep duration, energy level, and mood scores.</p>
-            </div>
-            <Link
-              href="/wellness"
-              className="py-2 px-4 bg-[#121214] hover:bg-[#18181b] border border-[#27272a] hover:border-pink-500/25 text-pink-400 text-xs font-bold rounded-xl transition-all flex items-center gap-1"
-            >
-              Log Wellness
-              <ChevronRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-        )}
+        {/* Body Composition Widget */}
+        <BodyCompWidget initialMeasurement={latestMeasurement} />
       </div>
 
     </div>

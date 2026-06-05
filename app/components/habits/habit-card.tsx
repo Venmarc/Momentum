@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Flame, Plus, Minus, Check, Edit2, Trash2, Tag, ChevronDown, ChevronUp, Star, Loader2 } from 'lucide-react';
 import { HabitLogInput } from '@/app/actions/habit-actions';
 
@@ -29,6 +29,13 @@ export default function HabitCard({ habit, logs, selectedDateStr, onLog, onEdit,
   const [notes, setNotes] = useState(dayLog?.notes || '');
   const [difficulty, setDifficulty] = useState(dayLog?.difficulty || 3);
   const [selectedTags, setSelectedTags] = useState<string[]>(dayLog?.context_tags || []);
+
+  // Sync state when dayLog or selectedDateStr changes
+  useEffect(() => {
+    setNotes(dayLog?.notes || '');
+    setDifficulty(dayLog?.difficulty || 3);
+    setSelectedTags(dayLog?.context_tags || []);
+  }, [dayLog, selectedDateStr]);
 
   // Calculate streak
   const calculateStreak = () => {
@@ -113,8 +120,8 @@ export default function HabitCard({ habit, logs, selectedDateStr, onLog, onEdit,
       await onLog({
         habit_id: habit.id,
         logged_date: selectedDateStr,
-        completed: habit.target_count === 1 ? !isCompleted : currentCount >= habit.target_count,
-        count: habit.target_count === 1 ? (isCompleted ? 0 : 1) : currentCount,
+        completed: isCompleted,
+        count: currentCount,
         notes: notes || null,
         difficulty,
         context_tags: selectedTags,
@@ -289,92 +296,101 @@ export default function HabitCard({ habit, logs, selectedDateStr, onLog, onEdit,
         </button>
 
         {/* Collapsible Details Form */}
-        {showDetails && (
-          <form onSubmit={handleDetailLogSubmit} className="mt-4 space-y-4 animate-in fade-in slide-in-from-top-1 duration-150">
-            {/* Difficulty rating */}
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-bold tracking-wider text-[#a1a1aa] uppercase">
-                Difficulty Rating
-              </label>
-              <div className="flex gap-1">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <button
-                    key={star}
-                    type="button"
-                    onClick={() => setDifficulty(star)}
-                    className="p-1 rounded-lg transition-all"
-                  >
-                    <Star className={`w-4 h-4 ${
-                      star <= difficulty 
-                        ? 'fill-brand-success text-brand-success' 
-                        : 'text-zinc-700'
-                    }`} />
-                  </button>
-                ))}
-              </div>
-            </div>
+        {showDetails && (() => {
+          const isNotesChanged = notes !== (dayLog?.notes || '');
+          const isDifficultyChanged = difficulty !== (dayLog?.difficulty || 3);
+          const isTagsChanged = JSON.stringify(selectedTags.slice().sort()) !== JSON.stringify((dayLog?.context_tags || []).slice().sort());
+          const isDirty = isNotesChanged || isDifficultyChanged || isTagsChanged;
 
-            {/* Context Tags */}
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-bold tracking-wider text-[#a1a1aa] uppercase flex items-center gap-1">
-                <Tag className="w-3 h-3 text-brand-success" />
-                Context Tags
-              </label>
-              <div className="flex flex-wrap gap-1.5">
-                {SUGGESTED_TAGS.map((tag) => {
-                  const active = selectedTags.includes(tag);
-                  return (
+          return (
+            <form onSubmit={handleDetailLogSubmit} className="mt-4 space-y-4 animate-in fade-in slide-in-from-top-1 duration-150">
+              {/* Difficulty rating */}
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold tracking-wider text-[#a1a1aa] uppercase flex items-center gap-1">
+                  Difficulty Rating
+                  <span className="text-[9px] text-[#71717a] font-normal normal-case ml-1">(1 = very hard, 5 = effortless)</span>
+                </label>
+                <div className="flex gap-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
                     <button
-                      key={tag}
+                      key={star}
                       type="button"
-                      onClick={() => toggleTag(tag)}
-                      className={`text-[10px] font-semibold px-2 py-1 rounded-lg border transition-all ${
-                        active
-                          ? 'bg-brand-success/10 border-brand-success/40 text-brand-success font-black'
-                          : 'bg-[#15151a] border-[#222226] text-[#a1a1aa] hover:border-[#3f3f46]'
-                      }`}
+                      onClick={() => setDifficulty(star)}
+                      className="p-1 rounded-lg transition-all"
                     >
-                      {tag}
+                      <Star className={`w-4 h-4 ${
+                        star <= difficulty 
+                          ? 'fill-brand-success text-brand-success' 
+                          : 'text-zinc-700'
+                      }`} />
                     </button>
-                  );
-                })}
+                  ))}
+                </div>
               </div>
-            </div>
 
-            {/* Log notes */}
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-bold tracking-wider text-[#a1a1aa] uppercase">
-                Daily Log Notes
-              </label>
-              <input
-                type="text"
-                placeholder="e.g. felt great today, did this at the office"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                className="w-full px-3 py-2 bg-[#15151a] border border-[#222226] focus:border-brand-success/50 rounded-lg text-xs text-white placeholder-[#52525b] outline-none transition-all"
-              />
-            </div>
+              {/* Context Tags */}
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold tracking-wider text-[#a1a1aa] uppercase flex items-center gap-1">
+                  <Tag className="w-3 h-3 text-brand-success" />
+                  Context Tags
+                  <span className="text-[9px] text-[#71717a] font-normal normal-case ml-1">(Where or when was this completed?)</span>
+                </label>
+                <div className="flex flex-wrap gap-1.5">
+                  {SUGGESTED_TAGS.map((tag) => {
+                    const active = selectedTags.includes(tag);
+                    return (
+                      <button
+                        key={tag}
+                        type="button"
+                        onClick={() => toggleTag(tag)}
+                        className={`text-[10px] font-semibold px-2 py-1 rounded-lg border transition-all ${
+                          active
+                            ? 'bg-brand-success/10 border-brand-success/40 text-brand-success font-black'
+                            : 'bg-[#15151a] border-[#222226] text-[#a1a1aa] hover:border-[#3f3f46]'
+                        }`}
+                      >
+                        {tag}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
 
-            {/* Submit Details */}
-            <div className="flex justify-end gap-2 pt-1">
-              <button
-                type="button"
-                onClick={() => setShowDetails(false)}
-                className="px-3 py-1.5 rounded-lg text-xs font-semibold text-[#a1a1aa] hover:bg-[#1a1a21] transition-all"
-              >
-                Close
-              </button>
-              <button
-                type="submit"
-                disabled={isLogging}
-                className="px-3.5 py-1.5 rounded-lg bg-brand-success text-black text-xs font-bold flex items-center justify-center gap-1 transition-all disabled:opacity-50"
-              >
-                {isLogging && <Loader2 className="w-3 h-3 animate-spin text-black" />}
-                Save Details
-              </button>
-            </div>
-          </form>
-        )}
+              {/* Log notes */}
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold tracking-wider text-[#a1a1aa] uppercase">
+                  Daily Log Notes
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. felt great today, did this at the office"
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  className="w-full px-3 py-2 bg-[#15151a] border border-[#222226] focus:border-brand-success/50 rounded-lg text-xs text-white placeholder-[#52525b] outline-none transition-all"
+                />
+              </div>
+
+              {/* Submit Details */}
+              <div className="flex justify-end gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setShowDetails(false)}
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold text-[#a1a1aa] hover:bg-[#1a1a21] transition-all"
+                >
+                  Close
+                </button>
+                <button
+                  type="submit"
+                  disabled={isLogging || !isDirty}
+                  className="px-3.5 py-1.5 rounded-lg bg-brand-success disabled:bg-[#15151a] disabled:text-[#52525b] disabled:border-[#222226] text-black text-xs font-bold flex items-center justify-center gap-1 transition-all disabled:opacity-50"
+                >
+                  {isLogging && <Loader2 className="w-3 h-3 animate-spin text-black" />}
+                  Save Details
+                </button>
+              </div>
+            </form>
+          );
+        })()}
       </div>
     </div>
   );

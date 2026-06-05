@@ -30,8 +30,10 @@ export const habitLogInputSchema = z.object({
 
 // --- FITNESS SCHEMAS ---
 export const setSchema = z.object({
-  reps: z.number().int().min(0),
-  weight_kg: z.number().min(0),
+  reps: z.number().int().min(0).nullable().optional(),
+  weight_kg: z.number().min(0).nullable().optional(),
+  duration_seconds: z.number().int().min(0).nullable().optional(),
+  bodyweight_multiplier: z.number().min(0).max(1).nullable().optional(),
   rpe: z.number().min(1).max(10).nullable().optional(),
   notes: z.string().optional().nullable(),
   completed: z.boolean().optional(),

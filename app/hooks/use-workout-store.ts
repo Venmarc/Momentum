@@ -5,6 +5,8 @@ export interface WorkoutSet {
   id: string;
   reps: string | number;
   weight_kg: string | number;
+  duration_seconds: number | null;
+  bodyweight_multiplier: number | null;
   rpe: number | null;
   notes: string;
   completed: boolean;
@@ -20,6 +22,7 @@ export interface ActiveExercise {
 
 interface WorkoutState {
   isActive: boolean;
+  workoutId: string | null;
   name: string;
   date: string;
   startTime: number | null;
@@ -28,6 +31,7 @@ interface WorkoutState {
   
   // Actions
   startWorkout: (name: string, templateExercises?: Array<{ id: string; name: string; category: string }>) => void;
+  editWorkout: (workout: any) => void;
   cancelWorkout: () => void;
   finishWorkout: () => void;
   updateWorkoutName: (name: string) => void;
@@ -38,7 +42,7 @@ interface WorkoutState {
   addSet: (exerciseId: string) => void;
   removeSet: (exerciseId: string, setId: string) => void;
   updateSet: (exerciseId: string, setId: string, updates: Partial<WorkoutSet>) => void;
-  setPreviousSets: (exerciseId: string, previousSets: Array<{ reps: number; weight_kg: number; rpe?: number | null }>) => void;
+  setPreviousSets: (exerciseId: string, previousSets: Array<{ reps: number; weight_kg: number; duration_seconds?: number | null; bodyweight_multiplier?: number | null; rpe?: number | null }>) => void;
 }
 
 const generateId = () => Math.random().toString(36).substring(2, 9);
@@ -47,6 +51,7 @@ export const useWorkoutStore = create<WorkoutState>()(
   persist(
     (set) => ({
       isActive: false,
+      workoutId: null,
       name: 'Empty Workout',
       date: new Date().toISOString().split('T')[0],
       startTime: null,
@@ -63,6 +68,8 @@ export const useWorkoutStore = create<WorkoutState>()(
               id: generateId(),
               reps: '',
               weight_kg: '',
+              duration_seconds: null,
+              bodyweight_multiplier: null,
               rpe: null,
               notes: '',
               completed: false,
@@ -72,6 +79,7 @@ export const useWorkoutStore = create<WorkoutState>()(
 
         set({
           isActive: true,
+          workoutId: null,
           name: name || 'Empty Workout',
           date: new Date().toISOString().split('T')[0],
           startTime: Date.now(),
@@ -80,9 +88,46 @@ export const useWorkoutStore = create<WorkoutState>()(
         });
       },
 
+      editWorkout: (workout) => {
+        const mappedExercises = (workout.workout_exercises || workout.exercises || []).map((we: any) => {
+          const sets = Array.isArray(we.sets) ? we.sets : [];
+          return {
+            id: we.exercise_id || we.exercise?.id || we.id,
+            name: we.exercise?.name || we.name,
+            category: we.exercise?.category || we.category,
+            sets: sets.map((s: any) => ({
+              id: s.id || generateId(),
+              reps: s.reps !== undefined && s.reps !== null ? String(s.reps) : '',
+              weight_kg: s.weight_kg !== undefined && s.weight_kg !== null ? String(s.weight_kg) : '',
+              duration_seconds: s.duration_seconds !== undefined && s.duration_seconds !== null ? Number(s.duration_seconds) : null,
+              bodyweight_multiplier: s.bodyweight_multiplier !== undefined && s.bodyweight_multiplier !== null ? Number(s.bodyweight_multiplier) : null,
+              rpe: s.rpe || null,
+              notes: s.notes || '',
+              completed: s.completed !== undefined ? s.completed : true,
+            })),
+          };
+        });
+
+        // Format date properly (force YYYY-MM-DD format)
+        const workoutDate = workout.date 
+          ? new Date(workout.date).toISOString().split('T')[0]
+          : new Date().toISOString().split('T')[0];
+
+        set({
+          isActive: true,
+          workoutId: workout.id || null,
+          name: workout.name || 'Edit Workout',
+          date: workoutDate,
+          startTime: Date.now(),
+          notes: workout.notes || '',
+          exercises: mappedExercises,
+        });
+      },
+
       cancelWorkout: () => {
         set({
           isActive: false,
+          workoutId: null,
           name: 'Empty Workout',
           date: new Date().toISOString().split('T')[0],
           startTime: null,
@@ -94,6 +139,7 @@ export const useWorkoutStore = create<WorkoutState>()(
       finishWorkout: () => {
         set({
           isActive: false,
+          workoutId: null,
           name: 'Empty Workout',
           date: new Date().toISOString().split('T')[0],
           startTime: null,
@@ -108,7 +154,6 @@ export const useWorkoutStore = create<WorkoutState>()(
 
       addExercise: (exercise) => {
         set((state) => {
-          // If exercise is already in active workout, don't duplicate it
           const exists = state.exercises.some((e) => e.id === exercise.id);
           if (exists) return state;
 
@@ -121,6 +166,8 @@ export const useWorkoutStore = create<WorkoutState>()(
                 id: generateId(),
                 reps: '',
                 weight_kg: '',
+                duration_seconds: null,
+                bodyweight_multiplier: null,
                 rpe: null,
                 notes: '',
                 completed: false,
@@ -145,12 +192,13 @@ export const useWorkoutStore = create<WorkoutState>()(
           exercises: state.exercises.map((e) => {
             if (e.id !== exerciseId) return e;
 
-            // Copy reps and weight of the last set if available, to make logging faster
             const lastSet = e.sets[e.sets.length - 1];
             const newSet: WorkoutSet = {
               id: generateId(),
               reps: lastSet ? lastSet.reps : '',
               weight_kg: lastSet ? lastSet.weight_kg : '',
+              duration_seconds: lastSet ? lastSet.duration_seconds : null,
+              bodyweight_multiplier: lastSet ? lastSet.bodyweight_multiplier : null,
               rpe: lastSet ? lastSet.rpe : null,
               notes: '',
               completed: false,
@@ -171,13 +219,14 @@ export const useWorkoutStore = create<WorkoutState>()(
 
             const filteredSets = e.sets.filter((s) => s.id !== setId);
             
-            // If we deleted all sets, keep at least one empty set
             const finalSets = filteredSets.length > 0 
               ? filteredSets 
               : [{
                   id: generateId(),
                   reps: '',
                   weight_kg: '',
+                  duration_seconds: null,
+                  bodyweight_multiplier: null,
                   rpe: null,
                   notes: '',
                   completed: false,
@@ -209,12 +258,19 @@ export const useWorkoutStore = create<WorkoutState>()(
           exercises: state.exercises.map((e) => {
             if (e.id !== exerciseId) return e;
 
-            // Map standard database sets to readable strings like "8 x 70kg"
             const setsWithPrev = e.sets.map((s, index) => {
               const prev = previousSets && previousSets[index];
-              const prevStr = prev 
-                ? `${prev.reps} × ${prev.weight_kg}kg${prev.rpe ? ` (RPE ${prev.rpe})` : ''}`
-                : '—';
+              let prevStr = '—';
+              if (prev) {
+                if (prev.duration_seconds) {
+                  const mins = Math.floor(prev.duration_seconds / 60);
+                  const secs = prev.duration_seconds % 60;
+                  prevStr = `${mins}:${String(secs).padStart(2, '0')}${prev.rpe ? ` (RPE ${prev.rpe})` : ''}`;
+                } else {
+                  const bwOffsetStr = prev.bodyweight_multiplier ? ` (BW)` : '';
+                  prevStr = `${prev.reps} × ${prev.weight_kg}kg${bwOffsetStr}${prev.rpe ? ` (RPE ${prev.rpe})` : ''}`;
+                }
+              }
               return {
                 ...s,
                 previous: prevStr,
@@ -233,6 +289,7 @@ export const useWorkoutStore = create<WorkoutState>()(
       name: 'momentum-active-workout',
       partialize: (state) => ({
         isActive: state.isActive,
+        workoutId: state.workoutId,
         name: state.name,
         date: state.date,
         startTime: state.startTime,

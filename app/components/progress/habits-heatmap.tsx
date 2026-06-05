@@ -75,7 +75,7 @@ export default function HabitsHeatmap({ logs, habits }: HabitsHeatmapProps) {
       </div>
 
       <div className="overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
-        <div className="flex gap-2 min-w-[650px] justify-center py-2">
+        <div className="flex gap-2 min-w-[650px] justify-start md:justify-center py-2">
           {/* Day of week labels */}
           <div className="grid grid-rows-7 gap-1.5 text-[10px] text-[#a1a1aa] pr-2 pt-5 select-none font-medium justify-items-end">
             <span className="h-3 leading-3">Mon</span>
@@ -110,16 +110,27 @@ export default function HabitsHeatmap({ logs, habits }: HabitsHeatmapProps) {
                       )}`}
                     >
                       {/* Tooltip */}
-                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-30 bg-black/90 backdrop-blur-md border border-white/10 rounded-lg p-2 shadow-2xl text-[10px] text-white whitespace-nowrap pointer-events-none transition-opacity duration-200">
-                        <p className="font-semibold">{format(day.date, 'MMMM d, yyyy')}</p>
-                        {day.totalLogged > 0 ? (
-                          <p className="text-emerald-400 mt-0.5">
-                            {day.completedCount}/{day.totalLogged} habits completed ({Math.round(day.completionRate * 100)}%)
-                          </p>
-                        ) : (
-                          <p className="text-[#a1a1aa] mt-0.5">No entries logged</p>
-                        )}
-                      </div>
+                      {(() => {
+                        let alignmentClass = "left-1/2 -translate-x-1/2";
+                        if (wIndex >= 23) {
+                          alignmentClass = "right-0 translate-x-0 left-auto";
+                        } else if (wIndex <= 2) {
+                          alignmentClass = "left-0 translate-x-0 right-auto";
+                        }
+
+                        return (
+                          <div className={`absolute bottom-full mb-2 hidden group-hover:block z-30 bg-black/95 backdrop-blur-md border border-white/10 rounded-lg p-2 shadow-2xl text-[10px] text-white whitespace-nowrap pointer-events-none transition-opacity duration-200 ${alignmentClass}`}>
+                            <p className="font-semibold">{format(day.date, 'MMMM d, yyyy')}</p>
+                            {day.totalLogged > 0 ? (
+                              <p className="text-emerald-400 mt-0.5">
+                                {day.completedCount}/{day.totalLogged} habits completed ({Math.round(day.completionRate * 100)}%)
+                              </p>
+                            ) : (
+                              <p className="text-[#a1a1aa] mt-0.5">No entries logged</p>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </div>
                   ))}
                 </div>
