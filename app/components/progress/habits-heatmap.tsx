@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useRef } from 'react';
 import { format, startOfWeek, subWeeks, addDays, isSameDay, parseISO } from 'date-fns';
 
 interface HabitsHeatmapProps {
@@ -9,6 +9,10 @@ interface HabitsHeatmapProps {
 }
 
 export default function HabitsHeatmap({ logs, habits }: HabitsHeatmapProps) {
+  const [hoveredDay, setHoveredDay] = useState<any>(null);
+  const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
+  const containerRef = useRef<HTMLDivElement>(null);
+
   // Generate the list of dates for the last 26 weeks (columns) x 7 days (rows)
   const gridData = useMemo(() => {
     const today = new Date();
@@ -57,7 +61,7 @@ export default function HabitsHeatmap({ logs, habits }: HabitsHeatmapProps) {
   const dayLabels = ['Mon', 'Wed', 'Fri', 'Sun'];
 
   return (
-    <div className="bg-white/[0.04] backdrop-blur-[20px] border border-white/[0.08] rounded-2xl p-6 shadow-xl">
+    <div ref={containerRef} className="relative bg-white/[0.04] backdrop-blur-[20px] border border-white/[0.08] rounded-2xl p-6 shadow-xl">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
         <div>
           <h3 className="text-lg font-semibold text-white">Habit Consistency Heatmap</h3>
@@ -75,7 +79,7 @@ export default function HabitsHeatmap({ logs, habits }: HabitsHeatmapProps) {
       </div>
 
       <div className="overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
-        <div className="flex gap-2 min-w-[540px] justify-start md:justify-center py-2">
+        <div className="flex gap-2 min-w-[540px] justify-start py-2">
           {/* Day of week labels */}
           <div className="grid grid-rows-7 gap-1.5 text-[10px] text-[#a1a1aa] pr-2 pt-5 select-none font-medium justify-items-end">
             <span className="h-3 leading-3">Mon</span>
@@ -97,43 +101,28 @@ export default function HabitsHeatmap({ logs, habits }: HabitsHeatmapProps) {
               return (
                 <div key={wIndex} className="flex flex-col gap-1.5 flex-1 relative">
                   {/* Month header */}
-                  <span className="absolute -top-5 left-0 text-[9px] text-[#a1a1aa] font-medium whitespace-nowrap select-none">
+                  <span className="absolute -top-5 left-0 text-[9px] text-[#a1a1aa] font-semibold whitespace-nowrap select-none">
                     {isFirstWeekOfMonth ? format(firstDayOfWeek, 'MMM') : ''}
                   </span>
 
                   {week.map((day, dIndex) => (
                     <div
                       key={day.dateStr}
-                      className={`w-full aspect-square rounded-[3px] transition-all duration-150 cursor-pointer relative group ${getCellClass(
+                      className={`w-full aspect-square rounded-[3px] transition-all duration-100 hover:scale-115 hover:z-10 cursor-pointer ${getCellClass(
                         day.completionRate,
                         day.totalLogged
                       )}`}
-                    >
-                      {/* Tooltip */}
-                      {(() => {
-                        let alignmentClass = "left-1/2 -translate-x-1/2";
-                        if (wIndex >= 23) {
-                          alignmentClass = "right-0 translate-x-0 left-auto";
-                        } else if (wIndex <= 2) {
-                          alignmentClass = "left-0 translate-x-0 right-auto";
-                        }
-
-                        const verticalClass = dIndex <= 2 ? "top-full mt-2" : "bottom-full mb-2";
-
-                        return (
-                          <div className={`absolute ${verticalClass} ${alignmentClass} hidden group-hover:block z-30 bg-black/95 backdrop-blur-md border border-white/10 rounded-lg p-2 shadow-2xl text-[10px] text-white whitespace-nowrap pointer-events-none transition-opacity duration-200`}>
-                            <p className="font-semibold">{format(day.date, 'MMMM d, yyyy')}</p>
-                            {day.totalLogged > 0 ? (
-                              <p className="text-emerald-400 mt-0.5">
-                                {day.completedCount}/{day.totalLogged} habits completed ({Math.round(day.completionRate * 100)}%)
-                              </p>
-                            ) : (
-                              <p className="text-[#a1a1aa] mt-0.5">No entries logged</p>
-                            )}
-                          </div>
-                        );
-                      })()}
-                    </div>
+                      onMouseEnter={() => setHoveredDay(day)}
+                      onMouseMove={(e) => {
+                        if (!containerRef.current) return;
+                        const rect = containerRef.current.getBoundingClientRect();
+                        setTooltipPos({
+                          x: e.clientX - rect.left,
+                          y: e.clientY - rect.top,
+                        });
+                      }}
+                      onMouseLeave={() => setHoveredDay(null)}
+                    />
                   ))}
                 </div>
               );
@@ -141,6 +130,32 @@ export default function HabitsHeatmap({ logs, habits }: HabitsHeatmapProps) {
           </div>
         </div>
       </div>
+
+      {/* Floating Tooltip */}
+      {hoveredDay && (() => {
+        const containerWidth = containerRef.current?.getBoundingClientRect().width || 0;
+        const isRightHalf = tooltipPos.x > containerWidth / 2;
+
+        return (
+          <div
+            className="absolute z-30 bg-black/95 backdrop-blur-md border border-[#27272a] rounded-xl p-2.5 shadow-2xl text-[10px] text-[#f4f4f5] whitespace-nowrap pointer-events-none transition-all duration-75"
+            style={{
+              left: tooltipPos.x,
+              top: tooltipPos.y,
+              transform: isRightHalf ? 'translate(calc(-100% - 12px), -50%)' : 'translate(12px, -50%)'
+            }}
+          >
+            <p className="font-bold text-white">{format(hoveredDay.date, 'MMMM d, yyyy')}</p>
+            {hoveredDay.totalLogged > 0 ? (
+              <p className="text-brand-success font-semibold mt-0.5">
+                {hoveredDay.completedCount}/{hoveredDay.totalLogged} habits completed ({Math.round(hoveredDay.completionRate * 100)}%)
+              </p>
+            ) : (
+              <p className="text-[#a1a1aa] mt-0.5">No entries logged</p>
+            )}
+          </div>
+        );
+      })()}
     </div>
   );
 }
