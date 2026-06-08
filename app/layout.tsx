@@ -20,6 +20,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Momentum",
   description: "Personal operating system for habits, fitness, and wellness tracker",
+  icons: {
+    icon: "/logo.svg",
+  },
 };
 
 export default async function RootLayout({

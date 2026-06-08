@@ -85,9 +85,11 @@ export default function Navigation() {
                 href={user ? "/dashboard" : "/"}
                 className="flex items-center gap-2 select-none cursor-pointer group/logo"
               >
-                <div className="w-8 h-8 rounded-xl bg-brand-success/10 border border-brand-success/20 flex items-center justify-center text-brand-success font-black text-sm tracking-tighter shadow-md shadow-brand-success/5 hover:bg-brand-success/20 transition-all">
-                  M
-                </div>
+                <img 
+                  src="/logo.svg" 
+                  alt="Momentum Logo" 
+                  className="w-8 h-8 rounded-xl bg-brand-success/5 border border-brand-success/20 p-1 object-contain transition-all" 
+                />
                 <span className="text-xs font-black tracking-widest text-[#f4f4f5] transition-colors">
                   MOMENTUM
                 </span>
@@ -105,9 +107,13 @@ export default function Navigation() {
           ) : (
             <Link 
               href={user ? "/dashboard" : "/"}
-              className="w-8 h-8 rounded-xl bg-brand-success/10 border border-brand-success/20 flex items-center justify-center text-brand-success font-black text-sm tracking-tighter shadow-md shadow-brand-success/5 hover:bg-brand-success/20 transition-all cursor-pointer relative group"
+              className="cursor-pointer relative group"
             >
-              M
+              <img 
+                src="/logo.svg" 
+                alt="Momentum Logo" 
+                className="w-8 h-8 rounded-xl bg-brand-success/5 border border-brand-success/20 p-1 object-contain transition-all" 
+              />
               <span className="absolute left-full ml-2.5 top-1/2 -translate-y-1/2 scale-95 opacity-0 group-hover:scale-100 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-200 ease-out pointer-events-none whitespace-nowrap bg-[#09090b] border border-[#27272a] text-[#e4e4e7] rounded-lg px-2.5 py-1.5 text-[11px] font-medium shadow-xl shadow-black/60 z-50">
                 Expand Sidebar
               </span>
