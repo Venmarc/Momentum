@@ -21,6 +21,8 @@ const navItems = [
 
 export default function Navigation() {
   const pathname = usePathname();
+  if (pathname === '/') return null;
+
   const { user, isLoaded } = useUser();
   const { isCollapsed, toggleSidebar } = useSidebarStore();
   const [mounted, setMounted] = useState(false);
