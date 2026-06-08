@@ -8,6 +8,8 @@ import {
   Clock, ArrowRight, UserPlus, LogIn, ChevronRight, CheckCircle2, Circle
 } from 'lucide-react';
 import BodyCompWidget from '@/app/components/dashboard/body-comp-widget';
+import LifeScoreRing, { DashboardHabitsChecklist } from '@/app/components/dashboard/life-score-ring';
+import GoalsTracker from '@/app/components/dashboard/goals-tracker';
 
 export const metadata = {
   title: 'Dashboard | Momentum',
@@ -110,7 +112,7 @@ export default async function DashboardPage() {
     .eq('clerk_id', userId)
     .single();
 
-  const displayName = profile?.username || profile?.full_name || 'User';
+  const displayName = profile?.full_name || profile?.username || 'User';
 
   // 2. Fetch habits stats
   const { data: habits } = await supabase
@@ -128,9 +130,6 @@ export default async function DashboardPage() {
     .eq('logged_date', todayStr);
 
   const completedTodayCount = todayLogs?.filter(l => l.completed).length || 0;
-  const habitCompletionPercent = activeHabitsCount > 0 
-    ? Math.round((completedTodayCount / activeHabitsCount) * 100) 
-    : 0;
 
   // 3. Fetch workouts stats
   const { data: workouts } = await supabase
@@ -160,6 +159,49 @@ export default async function DashboardPage() {
     .limit(1)
     .maybeSingle();
 
+  // 6. Fetch all goals
+  const { data: goals } = await supabase
+    .from('goals')
+    .select('*')
+    .eq('clerk_id', userId);
+
+  // 7. Calculate dynamic Life Score
+  const todayDayOfWeek = new Date().getDay(); // 0 is Sunday, 1 is Monday, etc.
+  const hasWorkoutScheduled = habits?.some(h => {
+    const isFitness = 
+      h.category?.toLowerCase() === 'fitness' || 
+      h.category?.toLowerCase() === 'workout' ||
+      h.name?.toLowerCase().includes('workout') ||
+      h.name?.toLowerCase().includes('gym') ||
+      h.name?.toLowerCase().includes('exercise');
+    if (!isFitness) return false;
+    
+    if (!h.recurrence) return true;
+    if (h.recurrence.type === 'daily') return true;
+    if (h.recurrence.type === 'weekly') {
+      return h.recurrence.days?.includes(todayDayOfWeek);
+    }
+    return true;
+  }) || false;
+
+  const workoutLoggedToday = workouts?.some(w => w.date === todayStr) || false;
+  const isWorkoutDay = workoutLoggedToday || hasWorkoutScheduled;
+
+  const habitsScore = activeHabitsCount > 0 
+    ? (completedTodayCount / activeHabitsCount) * 100 
+    : 100;
+  
+  const wellnessCompleted = !!todayWellness;
+  const wellnessScore = wellnessCompleted ? 100 : 0;
+  const workoutScore = workoutLoggedToday ? 100 : 0;
+
+  let score = 0;
+  if (isWorkoutDay) {
+    score = Math.round((habitsScore * 0.50) + (wellnessScore * 0.25) + (workoutScore * 0.25));
+  } else {
+    score = Math.round((habitsScore * 0.65) + (wellnessScore * 0.35));
+  }
+
   // Format today's human-readable date
   const displayDate = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
@@ -179,72 +221,27 @@ export default async function DashboardPage() {
           </h1>
           <p className="text-xs text-[#a1a1aa] font-medium">{displayDate}</p>
         </div>
-        
-        {/* Life Score / Metric Quick Info */}
-        <div className="bg-[#09090b] border border-[#27272a] rounded-xl px-4 py-2.5 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-brand-success/15 flex items-center justify-center text-brand-success font-extrabold text-sm">
-            {habitCompletionPercent}%
-          </div>
-          <div>
-            <p className="text-[10px] text-[#a1a1aa] font-bold uppercase tracking-wider">Today's Progress</p>
-            <p className="text-xs font-semibold text-white">
-              {completedTodayCount} of {activeHabitsCount} habits logged
-            </p>
-          </div>
-        </div>
       </div>
 
-      {/* Main Grid: Habits and Fitness summaries */}
+      {/* Today's Life Score Banner */}
+      <LifeScoreRing 
+        score={score} 
+        completedTodayCount={completedTodayCount}
+        activeHabitsCount={activeHabitsCount}
+        workoutLoggedToday={workoutLoggedToday}
+        wellnessCompleted={wellnessCompleted}
+        habits={habits || []}
+        todayLogs={todayLogs || []}
+      />
+
+      {/* Main Grid: 2x2 Habits, Fitness, Wellness, and Goals */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         
         {/* Habits Checklist Widget */}
-        <div className="bg-[#09090b] border border-[#27272a] rounded-2xl p-5 space-y-4 flex flex-col justify-between">
-          <div className="space-y-3">
-            <div className="flex items-center justify-between border-b border-[#27272a] pb-2">
-              <h2 className="text-sm font-bold text-white flex items-center gap-2">
-                <CheckSquare className="w-4.5 h-4.5 text-blue-400" />
-                Habits Due Today
-              </h2>
-              <span className="text-[10px] bg-[#18181b] border border-[#27272a] text-[#a1a1aa] px-2 py-0.5 rounded-md font-semibold">
-                {activeHabitsCount} active
-              </span>
-            </div>
-
-            {activeHabitsCount === 0 ? (
-              <p className="text-xs text-[#a1a1aa] py-4 italic">No habits registered. Create one to begin logging!</p>
-            ) : (
-              <div className="space-y-2.5 max-h-56 overflow-y-auto pr-1">
-                {habits?.map((h) => {
-                  const log = todayLogs?.find(l => l.habit_id === h.id);
-                  const isDone = !!log?.completed;
-                  return (
-                    <div key={h.id} className="flex items-center justify-between p-2 bg-[#121214] border border-[#1e1e22] rounded-lg">
-                      <span className={`text-xs font-semibold ${isDone ? 'line-through text-[#71717a]' : 'text-[#f4f4f5]'}`}>
-                        {h.name}
-                      </span>
-                      {isDone ? (
-                        <CheckCircle2 className="w-4.5 h-4.5 text-brand-success" />
-                      ) : (
-                        <Circle className="w-4.5 h-4.5 text-[#27272a]" />
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-
-          <Link
-            href="/habits"
-            className="w-full mt-2 py-2 border border-[#27272a] hover:border-zinc-700 bg-[#121214] hover:bg-[#18181b] rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 text-white transition-colors"
-          >
-            Manage Habits
-            <ChevronRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
+        <DashboardHabitsChecklist habits={habits || []} todayLogs={todayLogs || []} />
 
         {/* Fitness / Workout Logger Widget */}
-        <div className="bg-[#09090b] border border-[#27272a] rounded-2xl p-5 space-y-4 flex flex-col justify-between">
+        <div className="bg-[#09090b] border border-[#27272a] rounded-2xl p-5 space-y-4 flex flex-col justify-between min-h-[220px]">
           <div className="space-y-3">
             <div className="flex items-center justify-between border-b border-[#27272a] pb-2">
               <h2 className="text-sm font-bold text-white flex items-center gap-2">
@@ -284,18 +281,15 @@ export default async function DashboardPage() {
 
           <Link
             href="/fitness"
-            className="w-full mt-2 py-2 bg-[#121214] hover:bg-[#18181b] border border-[#27272a] hover:border-[#3f3f46] rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 text-white transition-colors"
+            className="w-full mt-2 py-2 bg-[#121214] hover:bg-[#18181b] border border-[#27272a] hover:border-[#3f3f46] rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 text-white transition-colors cursor-pointer outline-none focus:ring-1 focus:ring-[#22c55e]/50"
           >
             Start Workout
             <ChevronRight className="w-3.5 h-3.5" />
           </Link>
         </div>
-      </div>
 
-      {/* Wellness snapshot & Body Composition Row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Wellness snapshot widget */}
-        <div className="bg-[#09090b] border border-[#27272a] rounded-2xl p-5 space-y-4 flex flex-col justify-between">
+        <div className="bg-[#09090b] border border-[#27272a] rounded-2xl p-5 space-y-4 flex flex-col justify-between min-h-[220px]">
           <div className="space-y-4">
             <div className="flex items-center justify-between border-b border-[#27272a] pb-2">
               <h2 className="text-sm font-bold text-white flex items-center gap-2">
@@ -336,14 +330,19 @@ export default async function DashboardPage() {
 
           <Link
             href="/wellness"
-            className="w-full mt-2 py-2 bg-[#121214] hover:bg-[#18181b] border border-[#27272a] hover:border-pink-500/25 text-pink-400 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1"
+            className="w-full mt-2 py-2 bg-[#121214] hover:bg-[#18181b] border border-[#27272a] hover:border-pink-500/25 text-pink-400 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1 cursor-pointer outline-none focus:ring-1 focus:ring-[#22c55e]/50"
           >
             Log Wellness
             <ChevronRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 
-        {/* Body Composition Widget */}
+        {/* Goals Tracker Widget */}
+        <GoalsTracker goals={goals || []} />
+      </div>
+
+      {/* Body Composition section below the 2x2 grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <BodyCompWidget initialMeasurement={latestMeasurement} />
       </div>
 
