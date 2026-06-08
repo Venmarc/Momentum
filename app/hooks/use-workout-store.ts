@@ -23,6 +23,7 @@ export interface ActiveExercise {
 interface WorkoutState {
   isActive: boolean;
   workoutId: string | null;
+  workoutDuration: number | null;
   name: string;
   date: string;
   startTime: number | null;
@@ -52,6 +53,7 @@ export const useWorkoutStore = create<WorkoutState>()(
     (set) => ({
       isActive: false,
       workoutId: null,
+      workoutDuration: null,
       name: 'Empty Workout',
       date: new Date().toISOString().split('T')[0],
       startTime: null,
@@ -69,7 +71,7 @@ export const useWorkoutStore = create<WorkoutState>()(
               reps: '',
               weight_kg: '',
               duration_seconds: null,
-              bodyweight_multiplier: null,
+              bodyweight_multiplier: te.category?.toLowerCase() === 'bodyweight' ? 1 : null,
               rpe: null,
               notes: '',
               completed: false,
@@ -80,6 +82,7 @@ export const useWorkoutStore = create<WorkoutState>()(
         set({
           isActive: true,
           workoutId: null,
+          workoutDuration: null,
           name: name || 'Empty Workout',
           date: new Date().toISOString().split('T')[0],
           startTime: Date.now(),
@@ -116,6 +119,7 @@ export const useWorkoutStore = create<WorkoutState>()(
         set({
           isActive: true,
           workoutId: workout.id || null,
+          workoutDuration: workout.total_duration_minutes !== undefined ? workout.total_duration_minutes : null,
           name: workout.name || 'Edit Workout',
           date: workoutDate,
           startTime: Date.now(),
@@ -128,6 +132,7 @@ export const useWorkoutStore = create<WorkoutState>()(
         set({
           isActive: false,
           workoutId: null,
+          workoutDuration: null,
           name: 'Empty Workout',
           date: new Date().toISOString().split('T')[0],
           startTime: null,
@@ -140,6 +145,7 @@ export const useWorkoutStore = create<WorkoutState>()(
         set({
           isActive: false,
           workoutId: null,
+          workoutDuration: null,
           name: 'Empty Workout',
           date: new Date().toISOString().split('T')[0],
           startTime: null,
@@ -167,7 +173,7 @@ export const useWorkoutStore = create<WorkoutState>()(
                 reps: '',
                 weight_kg: '',
                 duration_seconds: null,
-                bodyweight_multiplier: null,
+                bodyweight_multiplier: exercise.category?.toLowerCase() === 'bodyweight' ? 1 : null,
                 rpe: null,
                 notes: '',
                 completed: false,
@@ -198,7 +204,7 @@ export const useWorkoutStore = create<WorkoutState>()(
               reps: lastSet ? lastSet.reps : '',
               weight_kg: lastSet ? lastSet.weight_kg : '',
               duration_seconds: lastSet ? lastSet.duration_seconds : null,
-              bodyweight_multiplier: lastSet ? lastSet.bodyweight_multiplier : null,
+              bodyweight_multiplier: lastSet ? lastSet.bodyweight_multiplier : (e.category?.toLowerCase() === 'bodyweight' ? 1 : null),
               rpe: lastSet ? lastSet.rpe : null,
               notes: '',
               completed: false,
@@ -290,6 +296,7 @@ export const useWorkoutStore = create<WorkoutState>()(
       partialize: (state) => ({
         isActive: state.isActive,
         workoutId: state.workoutId,
+        workoutDuration: state.workoutDuration,
         name: state.name,
         date: state.date,
         startTime: state.startTime,

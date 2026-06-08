@@ -7,7 +7,7 @@ import { toast } from '@/app/hooks/use-toast';
 import WorkoutLogger from './workout-logger';
 import { 
   Dumbbell, Clock, Flame, Calendar, Plus, Trash2, Edit3,
-  ChevronDown, ChevronUp, Play, Trophy, Heart, Activity, User 
+  ChevronDown, ChevronUp, Play, Trophy, Heart, Activity, User, Loader2
 } from 'lucide-react';
 
 interface Exercise {
@@ -111,6 +111,7 @@ export default function FitnessClient({
   const [workouts, setWorkouts] = useState<Workout[]>(initialWorkouts);
   const [expandedWorkouts, setExpandedWorkouts] = useState<Record<string, boolean>>({});
   const [isDeleting, startDeleting] = useTransition();
+  const [deleteWorkoutId, setDeleteWorkoutId] = useState<string | null>(null);
 
   const { isActive, startWorkout, editWorkout } = useWorkoutStore();
 
@@ -135,8 +136,6 @@ export default function FitnessClient({
   };
 
   const handleDelete = (workoutId: string) => {
-    if (!confirm('Are you sure you want to delete this workout? This action is permanent.')) return;
-
     startDeleting(async () => {
       const res = await deleteWorkout(workoutId);
       if (res.error) {
@@ -145,6 +144,7 @@ export default function FitnessClient({
         toast.success('Workout session removed.');
         setWorkouts((prev) => prev.filter((w) => w.id !== workoutId));
       }
+      setDeleteWorkoutId(null);
     });
   };
 
@@ -171,7 +171,7 @@ export default function FitnessClient({
   }
 
   return (
-    <div className="flex-1 max-w-4xl mx-auto w-full p-4 md:p-6 space-y-8 bg-black text-[#f4f4f5] pb-20">
+    <div className="flex-1 max-w-4xl mx-auto w-full p-4 md:p-6 space-y-8 bg-black text-[#f4f4f5] pb-24 min-w-0">
       
       {/* Page Title */}
       <div className="space-y-1 mt-16 md:mt-0">
@@ -291,7 +291,7 @@ export default function FitnessClient({
                     <div className="flex items-center justify-between md:justify-end gap-6 border-t md:border-t-0 border-[#1e1e22] pt-3 md:pt-0">
                       {/* Telemetry metrics */}
                       <div className="flex items-center gap-3 text-xs font-semibold text-[#f4f4f5] flex-wrap">
-                        {w.total_duration_minutes && (
+                        {typeof w.total_duration_minutes === 'number' && w.total_duration_minutes > 0 && (
                           <span className="flex items-center gap-1.5 bg-[#18181b] border border-[#27272a] px-2.5 py-1.5 rounded-lg whitespace-nowrap shrink-0">
                             <Clock className="w-3.5 h-3.5 text-brand-success shrink-0" />
                             {w.total_duration_minutes} min
@@ -319,7 +319,7 @@ export default function FitnessClient({
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleDelete(w.id);
+                            setDeleteWorkoutId(w.id);
                           }}
                           disabled={isDeleting}
                           className="p-1.5 rounded-lg hover:bg-red-950/20 text-[#71717a] hover:text-red-500 transition-colors"
@@ -356,7 +356,13 @@ export default function FitnessClient({
 
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 pl-4">
                               {we.sets.map((set, setIndex) => {
-                                const isCardio = we.exercise?.category?.toLowerCase() === 'endurance' || we.exercise?.category?.toLowerCase() === 'cardio';
+                                const isCardio = 
+                                  we.exercise?.category?.toLowerCase() === 'endurance' || 
+                                  we.exercise?.category?.toLowerCase() === 'cardio' || 
+                                  we.exercise?.name?.toLowerCase().includes('plank') || 
+                                  we.exercise?.name?.toLowerCase().includes('hold') || 
+                                  we.exercise?.name?.toLowerCase().includes('l-sit');
+
                                 return (
                                   <div 
                                     key={setIndex}
@@ -373,8 +379,11 @@ export default function FitnessClient({
                                       );
                                     })() : (
                                       <span className="text-xs text-white font-semibold font-mono">
-                                        {set.bodyweight_multiplier ? 'BW + ' : ''}
-                                        {set.weight_kg > 0 ? `${set.weight_kg}kg × ` : ''}
+                                        {set.bodyweight_multiplier === 1 ? (
+                                          Number(set.weight_kg) > 0 ? `BW + ${set.weight_kg}kg × ` : 'BW × '
+                                        ) : (
+                                          Number(set.weight_kg) > 0 ? `${set.weight_kg}kg × ` : ''
+                                        )}
                                         {set.reps} reps
                                       </span>
                                     )}
@@ -388,6 +397,20 @@ export default function FitnessClient({
                           </div>
                         ))}
                       </div>
+
+                      {/* Edit Session Trigger at the bottom of details */}
+                      <div className="flex justify-end pt-3 border-t border-[#1e1e22]">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            editWorkout(w);
+                          }}
+                          className="py-1.5 px-3.5 bg-[#18181b] hover:bg-[#202024] border border-[#27272a] hover:border-brand-success/50 text-xs font-bold rounded-xl flex items-center gap-1.5 transition-all text-[#a1a1aa] hover:text-white cursor-pointer"
+                        >
+                          <Edit3 className="w-3.5 h-3.5 text-brand-success" />
+                          Edit Session
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -397,6 +420,43 @@ export default function FitnessClient({
         )}
       </div>
 
+      {deleteWorkoutId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setDeleteWorkoutId(null)} />
+          <div className="bg-[#09090b] border border-[#27272a] rounded-2xl p-6 max-w-sm w-full relative z-10 shadow-2xl space-y-4 text-left animate-in zoom-in-95 duration-200">
+            <h4 className="text-sm font-bold text-white flex items-center gap-2">
+              <Trash2 className="w-4 h-4 text-red-500" />
+              Delete Workout Session
+            </h4>
+            <p className="text-xs text-[#a1a1aa] leading-relaxed">
+              Are you sure you want to delete this workout session? This action is permanent and cannot be undone.
+            </p>
+            <div className="flex justify-end gap-3 pt-2">
+              <button
+                onClick={() => setDeleteWorkoutId(null)}
+                className="flex-1 py-2 border border-[#27272a] hover:bg-[#18181b] text-white rounded-xl text-xs font-bold transition-colors cursor-pointer active-bounce"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  if (deleteWorkoutId) {
+                    handleDelete(deleteWorkoutId);
+                  }
+                }}
+                disabled={isDeleting}
+                className="flex-1 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer active-bounce"
+              >
+                {isDeleting ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  'Delete'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

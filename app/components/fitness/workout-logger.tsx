@@ -30,6 +30,7 @@ export default function WorkoutLogger() {
   const {
     isActive,
     workoutId,
+    workoutDuration,
     name,
     date,
     startTime,
@@ -156,7 +157,9 @@ export default function WorkoutLogger() {
     }
 
     startSaving(async () => {
-      const durationMin = startTime ? Math.floor((Date.now() - startTime) / 60000) : 0;
+      const durationMin = workoutId && typeof workoutDuration === 'number'
+        ? workoutDuration
+        : (startTime ? Math.floor((Date.now() - startTime) / 60000) : 0);
       
       const payload = {
         workoutId,
@@ -164,18 +167,27 @@ export default function WorkoutLogger() {
         date,
         duration: durationMin,
         notes,
-        exercises: exercises.map((ex) => ({
-          exercise_id: ex.id,
-          sets: ex.sets.map((s) => ({
-            reps: ex.category?.toLowerCase() === 'endurance' || ex.category?.toLowerCase() === 'cardio' ? null : (Number(s.reps) || 0),
-            weight_kg: ex.category?.toLowerCase() === 'endurance' || ex.category?.toLowerCase() === 'cardio' ? null : (Number(s.weight_kg) || 0),
-            duration_seconds: s.duration_seconds ? Number(s.duration_seconds) : null,
-            bodyweight_multiplier: s.bodyweight_multiplier ? Number(s.bodyweight_multiplier) : null,
-            rpe: s.rpe ? Number(s.rpe) : null,
-            notes: s.notes || null,
-            completed: s.completed,
-          })),
-        })),
+        exercises: exercises.map((ex) => {
+          const isTimerEx = 
+            ex.category?.toLowerCase() === 'endurance' || 
+            ex.category?.toLowerCase() === 'cardio' || 
+            ex.name?.toLowerCase().includes('plank') || 
+            ex.name?.toLowerCase().includes('hold') || 
+            ex.name?.toLowerCase().includes('l-sit');
+
+          return {
+            exercise_id: ex.id,
+            sets: ex.sets.map((s) => ({
+              reps: isTimerEx ? null : (Number(s.reps) || 0),
+              weight_kg: isTimerEx ? null : (s.bodyweight_multiplier === 1 ? 0 : (Number(s.weight_kg) || 0)),
+              duration_seconds: s.duration_seconds ? Number(s.duration_seconds) : null,
+              bodyweight_multiplier: s.bodyweight_multiplier ? Number(s.bodyweight_multiplier) : null,
+              rpe: s.rpe ? Number(s.rpe) : null,
+              notes: s.notes || null,
+              completed: s.completed,
+            })),
+          };
+        }),
       };
 
       const res = await saveWorkout(payload);
@@ -307,7 +319,12 @@ export default function WorkoutLogger() {
 
                 {/* Sets Table */}
                 {(() => {
-                  const isCardioOrEndurance = ex.category?.toLowerCase() === 'endurance' || ex.category?.toLowerCase() === 'cardio';
+                  const isCardioOrEndurance = 
+                    ex.category?.toLowerCase() === 'endurance' || 
+                    ex.category?.toLowerCase() === 'cardio' ||
+                    ex.name?.toLowerCase().includes('plank') ||
+                    ex.name?.toLowerCase().includes('hold') ||
+                    ex.name?.toLowerCase().includes('l-sit');
                   const isBodyweight = ex.category?.toLowerCase() === 'bodyweight';
                   const isExerciseIncludingBW = ex.sets.some(s => s.bodyweight_multiplier === 1);
                   const toggleBWForExercise = (exerciseId: string) => {
@@ -329,6 +346,7 @@ export default function WorkoutLogger() {
                                 <th className="py-2 pl-2 w-48">Duration</th>
                               ) : (
                                 <>
+                                  <th className="py-2 pl-2 w-20 text-center">BW</th>
                                   <th className="py-2 pl-2 w-28">Weight (kg)</th>
                                   <th className="py-2 pl-2 w-28">Reps</th>
                                 </>
@@ -436,19 +454,30 @@ export default function WorkoutLogger() {
                                     </td>
                                   ) : (
                                     <>
+                                      <td className="py-3 pl-2 text-center">
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            const isCurrentlyBW = set.bodyweight_multiplier === 1;
+                                            updateSet(ex.id, set.id, {
+                                              bodyweight_multiplier: isCurrentlyBW ? null : 1,
+                                              weight_kg: isCurrentlyBW ? '' : 0,
+                                            });
+                                          }}
+                                          disabled={set.completed}
+                                          className={`px-2 py-1 text-[10px] font-bold rounded border transition-all ${
+                                            set.bodyweight_multiplier === 1
+                                              ? 'bg-brand-success/15 border-brand-success/30 text-brand-success'
+                                              : 'bg-[#18181b] border-[#27272a] text-[#a1a1aa] hover:text-[#f4f4f5] hover:border-zinc-700'
+                                          }`}
+                                        >
+                                          BW
+                                        </button>
+                                      </td>
                                       <td className="py-3 pl-2">
-                                        {isBodyweight ? (
-                                          <div className="flex items-center bg-[#18181b] border border-[#27272a] focus-within:border-brand-success rounded-md px-1.5 w-24">
-                                            <span className="text-[10px] font-bold text-zinc-500 select-none mr-1">BW+</span>
-                                            <input
-                                              type="number"
-                                              step="any"
-                                              placeholder="0"
-                                              value={set.weight_kg}
-                                              onChange={(e) => updateSet(ex.id, set.id, { weight_kg: e.target.value })}
-                                              disabled={set.completed}
-                                              className="w-full bg-transparent text-[#f4f4f5] text-sm text-center py-1 outline-none disabled:opacity-50"
-                                            />
+                                        {set.bodyweight_multiplier === 1 ? (
+                                          <div className="w-20 py-1 bg-zinc-900/40 border border-dashed border-[#27272a] rounded-md text-center text-xs text-zinc-500 font-medium select-none">
+                                            Bodyweight
                                           </div>
                                         ) : (
                                           <input
