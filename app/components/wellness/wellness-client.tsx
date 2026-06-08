@@ -34,12 +34,13 @@ const JOURNAL_PROMPTS = [
 ];
 
 const MOODS = [
-  { value: 1, emoji: '😠', label: 'Awful', color: 'hover:bg-red-500/10 text-red-400 border-red-500/20 bg-red-950/5' },
-  { value: 2, emoji: '😕', label: 'Bad', color: 'hover:bg-orange-500/10 text-orange-400 border-orange-500/20 bg-orange-950/5' },
-  { value: 3, emoji: '😐', label: 'Okay', color: 'hover:bg-amber-500/10 text-amber-400 border-amber-500/20 bg-amber-950/5' },
+  { value: 1, emoji: '😢', label: 'Bad', color: 'hover:bg-red-500/10 text-red-400 border-red-500/20 bg-red-950/5' },
+  { value: 2, emoji: '🙁', label: 'Poor', color: 'hover:bg-orange-500/10 text-orange-400 border-orange-500/20 bg-orange-950/5' },
+  { value: 3, emoji: '😐', label: 'Neutral', color: 'hover:bg-amber-500/10 text-amber-400 border-amber-500/20 bg-amber-950/5' },
   { value: 4, emoji: '🙂', label: 'Good', color: 'hover:bg-emerald-500/10 text-emerald-400 border-emerald-500/20 bg-emerald-950/5' },
-  { value: 5, emoji: '😄', label: 'Excellent', color: 'hover:bg-brand-success/15 text-brand-success border-brand-success/20 bg-brand-success/5' }
+  { value: 5, emoji: '😆', label: 'Excellent', color: 'hover:bg-brand-success/15 text-brand-success border-brand-success/20 bg-brand-success/5' }
 ];
+
 
 const ENERGIES = [
   { value: 1, label: '⚡ Low', desc: 'Exhausted' },
@@ -177,7 +178,7 @@ export default function WellnessClient({ initialEntries }: WellnessClientProps) 
   };
 
   return (
-    <div className="flex-1 max-w-4xl mx-auto w-full p-4 md:p-6 space-y-6 bg-black text-[#f4f4f5] pb-24">
+    <div className="w-full max-w-5xl mx-auto px-4 md:px-8 py-8 space-y-8 pb-24 min-w-0">
       
       {/* Header section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-16 md:mt-0">
@@ -580,10 +581,10 @@ export default function WellnessClient({ initialEntries }: WellnessClientProps) 
 
       {/* Custom Confirmation Modal */}
       {deleteId && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-          <div className="bg-[#09090b] border border-[#27272a] rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-2xl animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 bg-black/65 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+          <div className="bg-white/[0.05] border border-white/10 backdrop-blur-[24px] rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-2xl animate-in zoom-in-95 duration-200">
             <div className="flex items-center gap-3 text-red-500">
-              <AlertCircle className="w-5 h-5" />
+              <AlertCircle className="w-5 h-5 text-red-400" />
               <h3 className="font-bold text-white text-sm">Delete Wellness Log?</h3>
             </div>
             
@@ -598,7 +599,7 @@ export default function WellnessClient({ initialEntries }: WellnessClientProps) 
                   setDeleteId(null);
                   setDeleteDateStr('');
                 }}
-                className="px-3.5 py-2 rounded-xl text-xs font-semibold text-[#a1a1aa] bg-transparent hover:bg-zinc-900 border border-[#27272a] hover:border-zinc-800 transition-all cursor-pointer"
+                className="px-3.5 py-2 rounded-xl text-xs font-semibold text-[#a1a1aa] bg-white/[0.02] hover:bg-white/[0.08] border border-white/10 hover:border-white/20 transition-all cursor-pointer"
               >
                 Cancel
               </button>
@@ -609,7 +610,7 @@ export default function WellnessClient({ initialEntries }: WellnessClientProps) 
                     confirmDelete(deleteId);
                   }
                 }}
-                className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-red-600 hover:bg-red-500 transition-all cursor-pointer"
+                className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-red-500 hover:bg-red-600 border border-red-500/20 transition-all cursor-pointer shadow-lg shadow-red-500/10"
               >
                 Delete Log
               </button>
