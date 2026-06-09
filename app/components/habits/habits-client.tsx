@@ -151,6 +151,13 @@ export default function HabitsClient({ initialHabits, initialLogs }: HabitsClien
     return true;
   });
 
+  // Keep these mounted for category switches to preserve input states
+  const statusMatchedHabits = habits.filter(habit => {
+    if (activeStatus === 'active' && !habit.is_active) return false;
+    if (activeStatus === 'archived' && habit.is_active) return false;
+    return true;
+  });
+
   // Unique categories in dataset (excluding custom inputs)
   const categories = ['All', 'Health', 'Fitness', 'Mindfulness', 'Routine', 'Growth'];
 
@@ -160,7 +167,7 @@ export default function HabitsClient({ initialHabits, initialLogs }: HabitsClien
   const dailyCompletionRate = totalActive > 0 ? Math.round((loggedToday / totalActive) * 100) : 0;
 
   return (
-    <div className="w-full max-w-5xl mx-auto px-4 md:px-8 py-8 space-y-8 pb-24 md:pb-12">
+    <div className="w-full max-w-5xl mx-auto px-4 md:px-8 py-8 space-y-8 pb-24 min-w-0">
       
       {/* Upper Welcome Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#1f1f23] pb-6">
@@ -179,7 +186,7 @@ export default function HabitsClient({ initialHabits, initialLogs }: HabitsClien
             setEditingHabit(null);
             setIsFormOpen(true);
           }}
-          className="px-5 py-3 rounded-xl bg-brand-success hover:bg-brand-success/90 text-[#030303] text-sm font-bold flex items-center justify-center gap-1.5 shadow-lg shadow-brand-success/15 hover:shadow-brand-success/25 transition-all self-start md:self-auto cursor-pointer"
+          className="px-5 py-3 rounded-xl bg-brand-success hover:bg-brand-success/90 text-[#030303] text-sm font-bold flex items-center justify-center gap-1.5 shadow-lg shadow-brand-success/15 hover:shadow-brand-success/25 transition-all self-start md:self-auto cursor-pointer active-bounce"
         >
           <Plus className="w-4 h-4 stroke-[3px]" />
           Create Habit
@@ -222,34 +229,36 @@ export default function HabitsClient({ initialHabits, initialLogs }: HabitsClien
       {/* Date Rolling Selector Widget */}
       <div className="p-4 rounded-2xl bg-[#09090b] border border-[#1f1f23] space-y-3">
         <span className="text-xs font-semibold text-[#a1a1aa] uppercase tracking-wider px-1">Select Logging Date</span>
-        <div className="grid grid-cols-7 gap-2">
-          {rollingDays.map((day) => {
-            const isSelected = selectedDateStr === day.dateStr;
-            const completedCount = logs.filter(l => l.logged_date === day.dateStr && l.completed).length;
-            const hasLogs = completedCount > 0;
+        <div className="overflow-x-auto pb-1 scrollbar-none">
+          <div className="grid grid-cols-7 gap-1.5 sm:gap-2 min-w-[320px]">
+            {rollingDays.map((day) => {
+              const isSelected = selectedDateStr === day.dateStr;
+              const completedCount = logs.filter(l => l.logged_date === day.dateStr && l.completed).length;
+              const hasLogs = completedCount > 0;
 
-            return (
-              <button
-                key={day.dateStr}
-                onClick={() => setSelectedDateStr(day.dateStr)}
-                className={`py-3 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
-                  isSelected
-                    ? 'bg-brand-success border-brand-success text-[#030303] shadow-md shadow-brand-success/15 font-black scale-105'
-                    : 'bg-[#0e0e11] border-[#1c1c22] text-[#a1a1aa] hover:border-[#27272a] hover:bg-[#15151a]'
-                }`}
-              >
-                <span className="text-[10px] uppercase font-bold tracking-wider opacity-80">{day.dayName}</span>
-                <span className="text-base font-black leading-none">{day.dayNum}</span>
-                
-                {/* Visual completion dot marker */}
-                {hasLogs && (
-                  <span className={`w-1.5 h-1.5 rounded-full mt-1.5 ${
-                    isSelected ? 'bg-black' : 'bg-brand-success'
-                  }`} />
-                )}
-              </button>
-            );
-          })}
+              return (
+                <button
+                  key={day.dateStr}
+                  onClick={() => setSelectedDateStr(day.dateStr)}
+                  className={`py-3 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
+                    isSelected
+                      ? 'bg-brand-success border-brand-success text-[#030303] shadow-md shadow-brand-success/15 font-black scale-105'
+                      : 'bg-[#0e0e11] border-[#1c1c22] text-[#a1a1aa] hover:border-[#27272a] hover:bg-[#15151a]'
+                  }`}
+                >
+                  <span className="text-[10px] uppercase font-bold tracking-wider opacity-80">{day.dayName}</span>
+                  <span className="text-base font-black leading-none">{day.dayNum}</span>
+                  
+                  {/* Visual completion dot marker */}
+                  {hasLogs && (
+                    <span className={`w-1.5 h-1.5 rounded-full mt-1.5 ${
+                      isSelected ? 'bg-black' : 'bg-brand-success'
+                    }`} />
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
@@ -261,7 +270,7 @@ export default function HabitsClient({ initialHabits, initialLogs }: HabitsClien
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border whitespace-nowrap cursor-pointer ${
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border whitespace-nowrap shrink-0 cursor-pointer ${
                 activeCategory === cat
                   ? 'bg-card-hover border-[#27272a] text-white'
                   : 'bg-[#0e0e11]/40 border-[#1f1f23] text-[#71717a] hover:text-[#a1a1aa]'
@@ -300,17 +309,21 @@ export default function HabitsClient({ initialHabits, initialLogs }: HabitsClien
       {/* Grid of habits */}
       {filteredHabits.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {filteredHabits.map((habit) => (
-            <HabitCard
-              key={habit.id}
-              habit={habit}
-              logs={logs}
-              selectedDateStr={selectedDateStr}
-              onLog={handleLogHabit}
-              onEdit={handleOpenEdit}
-              onDelete={handleDeleteHabit}
-            />
-          ))}
+          {statusMatchedHabits.map((habit) => {
+            const isVisible = activeCategory === 'All' || habit.category === activeCategory;
+            return (
+              <HabitCard
+                key={habit.id}
+                habit={habit}
+                logs={logs}
+                selectedDateStr={selectedDateStr}
+                onLog={handleLogHabit}
+                onEdit={handleOpenEdit}
+                onDelete={handleDeleteHabit}
+                className={isVisible ? '' : 'hidden'}
+              />
+            );
+          })}
         </div>
       ) : (
         /* Empty State */

@@ -11,14 +11,16 @@ type HabitCardProps = {
   onLog: (input: HabitLogInput) => Promise<void>;
   onEdit: (habit: any) => void;
   onDelete: (id: string) => Promise<void>;
+  className?: string;
 };
 
 const SUGGESTED_TAGS = ['work', 'travel', 'morning', 'night', 'weekend', 'home'];
 
-export default function HabitCard({ habit, logs, selectedDateStr, onLog, onEdit, onDelete }: HabitCardProps) {
+export default function HabitCard({ habit, logs, selectedDateStr, onLog, onEdit, onDelete, className }: HabitCardProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isLogging, setIsLogging] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   // Find log for the selected date
   const dayLog = logs.find(l => l.habit_id === habit.id && l.logged_date === selectedDateStr);
@@ -141,15 +143,14 @@ export default function HabitCard({ habit, logs, selectedDateStr, onLog, onEdit,
   };
 
   const handleDelete = async () => {
-    if (confirm('Are you sure you want to delete this habit and all its logs?')) {
-      setIsDeleting(true);
-      try {
-        await onDelete(habit.id);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setIsDeleting(false);
-      }
+    setIsDeleting(true);
+    try {
+      await onDelete(habit.id);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteModal(false);
     }
   };
 
@@ -170,7 +171,7 @@ export default function HabitCard({ habit, logs, selectedDateStr, onLog, onEdit,
       isCompleted 
         ? 'border-brand-success/30 bg-[#0e120f]/30 shadow-lg shadow-brand-success/2'
         : 'border-[#1f1f23] hover:border-[#27272a]'
-    }`}>
+    } ${className || ''}`}>
       {/* Top Header Row */}
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-1">
@@ -199,15 +200,15 @@ export default function HabitCard({ habit, logs, selectedDateStr, onLog, onEdit,
         <div className="flex items-center gap-1.5">
           <button 
             onClick={() => onEdit(habit)}
-            className="p-1.5 rounded-lg text-[#52525b] hover:text-white hover:bg-[#1a1a21] transition-all"
+            className="p-1.5 rounded-lg text-[#52525b] hover:text-white hover:bg-[#1a1a21] transition-all active-bounce"
             title="Edit Habit"
           >
             <Edit2 className="w-3.5 h-3.5" />
           </button>
           <button 
-            onClick={handleDelete}
+            onClick={() => setShowDeleteModal(true)}
             disabled={isDeleting}
-            className="p-1.5 rounded-lg text-[#52525b] hover:text-[#ef4444] hover:bg-[#211215] transition-all disabled:opacity-50"
+            className="p-1.5 rounded-lg text-[#52525b] hover:text-[#ef4444] hover:bg-[#211215] transition-all disabled:opacity-50 active-bounce"
             title="Delete Habit"
           >
             {isDeleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
@@ -222,7 +223,7 @@ export default function HabitCard({ habit, logs, selectedDateStr, onLog, onEdit,
           <button
             onClick={() => handleQuickLog(isCompleted ? 0 : 1)}
             disabled={isLogging}
-            className={`w-full py-2.5 rounded-xl border font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+            className={`w-full py-2.5 rounded-xl border font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer active-bounce ${
               isCompleted
                 ? 'bg-brand-success/10 border-brand-success/30 text-brand-success'
                 : 'bg-[#141418] border-[#222226] text-[#a1a1aa] hover:bg-[#1b1b22] hover:text-white'
@@ -245,7 +246,7 @@ export default function HabitCard({ habit, logs, selectedDateStr, onLog, onEdit,
             <button
               onClick={() => handleQuickLog(Math.max(0, currentCount - 1))}
               disabled={isLogging || currentCount === 0}
-              className="p-2 rounded-lg bg-[#1a1a21] border border-[#222226] text-[#a1a1aa] hover:text-white disabled:opacity-30 disabled:hover:text-[#a1a1aa] transition-all cursor-pointer"
+              className="p-2 rounded-lg bg-[#1a1a21] border border-[#222226] text-[#a1a1aa] hover:text-white disabled:opacity-30 disabled:hover:text-[#a1a1aa] transition-all cursor-pointer active-bounce"
             >
               <Minus className="w-3.5 h-3.5" />
             </button>
@@ -256,7 +257,7 @@ export default function HabitCard({ habit, logs, selectedDateStr, onLog, onEdit,
             <button
               onClick={() => handleQuickLog(currentCount + 1)}
               disabled={isLogging}
-              className="p-2 rounded-lg bg-brand-success text-black hover:bg-brand-success/90 transition-all cursor-pointer"
+              className="p-2 rounded-lg bg-brand-success text-black hover:bg-brand-success/90 transition-all cursor-pointer active-bounce"
             >
               <Plus className="w-3.5 h-3.5 stroke-[3px]" />
             </button>
@@ -278,7 +279,7 @@ export default function HabitCard({ habit, logs, selectedDateStr, onLog, onEdit,
       <div className="mt-3.5 pt-3 border-t border-[#1f1f23]/50">
         <button
           onClick={() => setShowDetails(!showDetails)}
-          className="flex items-center gap-1.5 text-xs text-[#71717a] hover:text-[#a1a1aa] transition-all"
+          className="flex items-center gap-1.5 text-xs text-[#71717a] hover:text-[#a1a1aa] transition-all active-bounce"
         >
           {showDetails ? (
             <>
@@ -316,7 +317,7 @@ export default function HabitCard({ habit, logs, selectedDateStr, onLog, onEdit,
                       key={star}
                       type="button"
                       onClick={() => setDifficulty(star)}
-                      className="p-1 rounded-lg transition-all"
+                      className="p-1 rounded-lg transition-all active-bounce"
                     >
                       <Star className={`w-4 h-4 ${
                         star <= difficulty 
@@ -343,7 +344,7 @@ export default function HabitCard({ habit, logs, selectedDateStr, onLog, onEdit,
                         key={tag}
                         type="button"
                         onClick={() => toggleTag(tag)}
-                        className={`text-[10px] font-semibold px-2 py-1 rounded-lg border transition-all ${
+                        className={`text-[10px] font-semibold px-2 py-1 rounded-lg border transition-all active-bounce ${
                           active
                             ? 'bg-brand-success/10 border-brand-success/40 text-brand-success font-black'
                             : 'bg-[#15151a] border-[#222226] text-[#a1a1aa] hover:border-[#3f3f46]'
@@ -375,14 +376,14 @@ export default function HabitCard({ habit, logs, selectedDateStr, onLog, onEdit,
                 <button
                   type="button"
                   onClick={() => setShowDetails(false)}
-                  className="px-3 py-1.5 rounded-lg text-xs font-semibold text-[#a1a1aa] hover:bg-[#1a1a21] transition-all"
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold text-[#a1a1aa] hover:bg-[#1a1a21] transition-all active-bounce"
                 >
                   Close
                 </button>
                 <button
                   type="submit"
                   disabled={isLogging || !isDirty}
-                  className="px-3.5 py-1.5 rounded-lg bg-brand-success disabled:bg-[#15151a] disabled:text-[#52525b] disabled:border-[#222226] text-black text-xs font-bold flex items-center justify-center gap-1 transition-all disabled:opacity-50"
+                  className="px-3.5 py-1.5 rounded-lg bg-brand-success disabled:bg-[#15151a] disabled:text-[#52525b] disabled:border-[#222226] text-black text-xs font-bold flex items-center justify-center gap-1 transition-all disabled:opacity-50 active-bounce"
                 >
                   {isLogging && <Loader2 className="w-3 h-3 animate-spin text-black" />}
                   Save Details
@@ -392,6 +393,38 @@ export default function HabitCard({ habit, logs, selectedDateStr, onLog, onEdit,
           );
         })()}
       </div>
+
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+          <div className="bg-[#09090b] border border-[#27272a] rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-2xl animate-in zoom-in-95 duration-200 text-left">
+            <div className="space-y-2">
+              <h3 className="text-sm font-bold text-white">Delete Habit</h3>
+              <p className="text-xs text-[#a1a1aa] leading-relaxed">
+                Are you sure you want to delete <span className="text-[#f4f4f5] font-semibold">"{habit.name}"</span>? This will permanently remove all logs associated with this habit.
+              </p>
+            </div>
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="flex-1 py-2 rounded-xl border border-[#27272a] hover:bg-[#18181b] text-white text-xs font-bold transition-all cursor-pointer active-bounce"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="flex-1 py-2 rounded-xl bg-[#ef4444] hover:bg-[#dc2626] text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer active-bounce"
+              >
+                {isDeleting ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  'Delete'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

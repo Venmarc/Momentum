@@ -188,31 +188,69 @@ export async function logHabit(input: HabitLogInput) {
 
     if (habitErr || !habit) return { error: 'Unauthorized habit access' };
 
-    const { data, error } = await supabase
+    // Check if a log entry already exists for this habit on this date
+    const { data: existingLog, error: logFetchErr } = await supabase
       .from('habit_logs')
-      .upsert({
-        habit_id: parsed.data.habit_id,
-        clerk_id: userId,
-        logged_date: parsed.data.logged_date,
-        completed: parsed.data.completed,
-        count: parsed.data.count,
-        notes: parsed.data.notes,
-        difficulty: parsed.data.difficulty,
-        context_tags: parsed.data.context_tags,
-      }, {
-        onConflict: 'habit_id, logged_date'
-      })
-      .select()
-      .single();
+      .select('id')
+      .eq('habit_id', parsed.data.habit_id)
+      .eq('logged_date', parsed.data.logged_date)
+      .eq('clerk_id', userId)
+      .maybeSingle();
 
-    if (error) {
-      console.error('Error logging habit entry:', error);
-      return { error: `Database error: ${error.message}` };
+    if (logFetchErr) {
+      console.error('Error fetching existing log:', logFetchErr);
+      return { error: `Database error: ${logFetchErr.message}` };
+    }
+
+    let resultError;
+    let resultData;
+
+    if (existingLog) {
+      // Update
+      const { data, error } = await supabase
+        .from('habit_logs')
+        .update({
+          completed: parsed.data.completed,
+          count: parsed.data.count,
+          notes: parsed.data.notes,
+          difficulty: parsed.data.difficulty,
+          context_tags: parsed.data.context_tags,
+        })
+        .eq('id', existingLog.id)
+        .select()
+        .single();
+      
+      resultError = error;
+      resultData = data;
+    } else {
+      // Insert
+      const { data, error } = await supabase
+        .from('habit_logs')
+        .insert({
+          habit_id: parsed.data.habit_id,
+          clerk_id: userId,
+          logged_date: parsed.data.logged_date,
+          completed: parsed.data.completed,
+          count: parsed.data.count,
+          notes: parsed.data.notes,
+          difficulty: parsed.data.difficulty,
+          context_tags: parsed.data.context_tags,
+        })
+        .select()
+        .single();
+      
+      resultError = error;
+      resultData = data;
+    }
+
+    if (resultError) {
+      console.error('Error logging habit entry:', resultError);
+      return { error: `Database error: ${resultError.message}` };
     }
 
     revalidatePath('/habits');
     revalidatePath('/');
-    return { success: true, data };
+    return { success: true, data: resultData };
   } catch (err) {
     console.error('Unexpected error in logHabit:', err);
     return { error: 'An unexpected error occurred' };

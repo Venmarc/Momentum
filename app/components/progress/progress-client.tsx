@@ -186,7 +186,7 @@ export default function ProgressClient({
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8 space-y-8 pb-20">
+    <div className="w-full max-w-6xl mx-auto px-4 py-8 space-y-8 pb-24 min-w-0">
       {/* Title */}
       <div>
         <h1 className="text-3xl font-extrabold text-white tracking-tight">Progress & Analytics</h1>
@@ -197,7 +197,7 @@ export default function ProgressClient({
       <div className="flex gap-2 border-b border-white/5 pb-2 overflow-x-auto scrollbar-none">
         <button
           onClick={() => setActiveTab('habits')}
-          className={`px-5 py-2 rounded-xl text-sm font-semibold transition-all duration-300 ${
+          className={`px-5 py-2 rounded-xl text-sm font-semibold transition-all duration-300 whitespace-nowrap shrink-0 ${
             activeTab === 'habits' 
               ? 'bg-white/10 text-white shadow-md' 
               : 'text-[#a1a1aa] hover:text-white hover:bg-white/5'
@@ -207,7 +207,7 @@ export default function ProgressClient({
         </button>
         <button
           onClick={() => setActiveTab('fitness')}
-          className={`px-5 py-2 rounded-xl text-sm font-semibold transition-all duration-300 ${
+          className={`px-5 py-2 rounded-xl text-sm font-semibold transition-all duration-300 whitespace-nowrap shrink-0 ${
             activeTab === 'fitness' 
               ? 'bg-white/10 text-white shadow-md' 
               : 'text-[#a1a1aa] hover:text-white hover:bg-white/5'
@@ -217,7 +217,7 @@ export default function ProgressClient({
         </button>
         <button
           onClick={() => setActiveTab('wellness')}
-          className={`px-5 py-2 rounded-xl text-sm font-semibold transition-all duration-300 ${
+          className={`px-5 py-2 rounded-xl text-sm font-semibold transition-all duration-300 whitespace-nowrap shrink-0 ${
             activeTab === 'wellness' 
               ? 'bg-white/10 text-white shadow-md' 
               : 'text-[#a1a1aa] hover:text-white hover:bg-white/5'
@@ -227,7 +227,7 @@ export default function ProgressClient({
         </button>
         <button
           onClick={() => setActiveTab('body')}
-          className={`px-5 py-2 rounded-xl text-sm font-semibold transition-all duration-300 ${
+          className={`px-5 py-2 rounded-xl text-sm font-semibold transition-all duration-300 whitespace-nowrap shrink-0 ${
             activeTab === 'body' 
               ? 'bg-white/10 text-white shadow-md' 
               : 'text-[#a1a1aa] hover:text-white hover:bg-white/5'
@@ -252,7 +252,7 @@ export default function ProgressClient({
                     <XAxis dataKey="name" stroke="#a1a1aa" fontSize={12} />
                     <YAxis stroke="#a1a1aa" fontSize={12} domain={[0, 100]} unit="%" />
                     <Tooltip 
-                      contentStyle={{ backgroundColor: '#18181b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
+                      contentStyle={{ backgroundColor: 'rgba(9, 9, 11, 0.95)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.5)' }}
                       labelStyle={{ color: '#fff', fontWeight: 'bold' }}
                     />
                     <Line type="monotone" dataKey="Adherence %" stroke="#10b981" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
@@ -284,7 +284,7 @@ export default function ProgressClient({
                       <XAxis dataKey="date" stroke="#a1a1aa" fontSize={12} />
                       <YAxis stroke="#a1a1aa" fontSize={12} unit="kg" />
                       <Tooltip 
-                        contentStyle={{ backgroundColor: '#18181b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
+                        contentStyle={{ backgroundColor: 'rgba(9, 9, 11, 0.95)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.5)' }}
                         labelStyle={{ color: '#fff', fontWeight: 'bold' }}
                       />
                       <Bar dataKey="Volume" fill="#3b82f6" radius={[4, 4, 0, 0]} />
@@ -324,7 +324,7 @@ export default function ProgressClient({
                       <XAxis dataKey="date" stroke="#a1a1aa" fontSize={12} />
                       <YAxis stroke="#a1a1aa" fontSize={12} unit="kg" />
                       <Tooltip 
-                        contentStyle={{ backgroundColor: '#18181b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
+                        contentStyle={{ backgroundColor: 'rgba(9, 9, 11, 0.95)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.5)' }}
                         labelStyle={{ color: '#fff', fontWeight: 'bold' }}
                       />
                       <Legend verticalAlign="top" height={36} wrapperStyle={{ fontSize: '12px' }} />
@@ -387,7 +387,7 @@ export default function ProgressClient({
                     <YAxis yAxisId="left" stroke="#a1a1aa" fontSize={12} label={{ value: 'Hours', angle: -90, position: 'insideLeft', fill: '#a1a1aa' }} />
                     <YAxis yAxisId="right" orientation="right" stroke="#a1a1aa" fontSize={12} domain={[1, 5]} label={{ value: 'Index (1-5)', angle: 90, position: 'insideRight', fill: '#a1a1aa' }} />
                     <Tooltip 
-                      contentStyle={{ backgroundColor: '#18181b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
+                      contentStyle={{ backgroundColor: 'rgba(9, 9, 11, 0.95)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.5)' }}
                       labelStyle={{ color: '#fff', fontWeight: 'bold' }}
                     />
                     <Legend verticalAlign="top" height={36} wrapperStyle={{ fontSize: '12px' }} />
@@ -422,7 +422,7 @@ export default function ProgressClient({
                       <XAxis dataKey="date" stroke="#a1a1aa" fontSize={12} />
                       <YAxis stroke="#a1a1aa" fontSize={12} unit="kg" />
                       <Tooltip 
-                        contentStyle={{ backgroundColor: '#18181b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
+                        contentStyle={{ backgroundColor: 'rgba(9, 9, 11, 0.95)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.5)' }}
                         labelStyle={{ color: '#fff', fontWeight: 'bold' }}
                       />
                       <Legend verticalAlign="top" height={36} wrapperStyle={{ fontSize: '12px' }} />

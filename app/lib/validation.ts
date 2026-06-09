@@ -75,3 +75,15 @@ export const bodyMeasurementInputSchema = z.object({
   notes: z.string().optional().nullable(),
   photo_urls: z.array(z.string()).optional().nullable(),
 });
+
+// --- GOAL SCHEMAS ---
+export const goalInputSchema = z.object({
+  id: z.string().uuid().optional().nullable(),
+  title: z.string().min(1, 'Title is required'),
+  description: z.string().optional().nullable(),
+  target_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format').optional().nullable(),
+  target_value: z.number().min(0, 'Target value must be at least 0'),
+  current_value: z.number().min(0, 'Current value must be at least 0').default(0),
+  category: z.string().optional().nullable(),
+  is_active: z.boolean().default(true),
+});

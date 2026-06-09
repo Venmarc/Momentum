@@ -167,5 +167,10 @@ little wellness guide at the bottom in mobile, and by the side in desktop. good
 - If I keep going, I'll end up repeating and reiterating, so that's all for now.
 **Do a good job**
 
-## 7. Future & Unplanned Tasks
-- **Awesome & Weird 404 Page**: Design a highly unique, engaging, and weird 404 error page to replace the standard Next.js default. Put a pin in this to grill later.
+## 404 Page (Upcoming)
+- Build a weird and awesome custom 404 page. Must feel engaging, gamified, or unexpected. Grill user on design later.
+
+## Settings & Dashboard Personalization (Upcoming)
+- Plan and design a personalized Settings system.
+- Allow the user to customize their dashboard by adding or removing individual widgets (e.g., body composition/weight log widget, goals tracker, fitness status, wellness log).
+- Start implementing this customization layout directly on the dashboard first, eventually syncing settings with the user preferences database table.

@@ -36,7 +36,7 @@ export default function Navigation() {
   const collapsed = mounted ? isCollapsed : false;
   
   const handleMouseEnter = () => {
-    if (collapsed && typeof window !== 'undefined' && window.innerWidth >= 1024) {
+    if (collapsed && typeof window !== 'undefined' && window.innerWidth >= 768) {
       if (leaveTimeoutRef.current) {
         clearTimeout(leaveTimeoutRef.current);
         leaveTimeoutRef.current = null;
@@ -46,11 +46,12 @@ export default function Navigation() {
   };
 
   const handleMouseLeave = () => {
-    if (collapsed) {
-      leaveTimeoutRef.current = setTimeout(() => {
-        setIsHovered(false);
-      }, 300);
+    if (leaveTimeoutRef.current) {
+      clearTimeout(leaveTimeoutRef.current);
     }
+    leaveTimeoutRef.current = setTimeout(() => {
+      setIsHovered(false);
+    }, 300);
   };
 
   // Clean up timer on unmount
@@ -60,6 +61,17 @@ export default function Navigation() {
         clearTimeout(leaveTimeoutRef.current);
       }
     };
+  }, []);
+
+  // Clear hover state on viewport resizing under desktop width
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024) {
+        setIsHovered(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   const isExpandedVisual = !collapsed || isHovered;
@@ -97,19 +109,26 @@ export default function Navigation() {
                 </span>
               </Link>
               <button 
-                onClick={toggleSidebar} 
+                onClick={() => {
+                  toggleSidebar();
+                  setIsHovered(false);
+                }} 
                 className="p-1.5 rounded-lg border border-[#27272a] hover:border-zinc-700 bg-transparent text-[#a1a1aa] hover:text-white cursor-pointer hover:bg-[#121214] transition-colors active-bounce relative group"
               >
                 <PanelLeftClose className="w-4 h-4" />
-                <span className="absolute left-full ml-2.5 top-1/2 -translate-y-1/2 scale-95 opacity-0 group-hover:scale-100 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-200 ease-out pointer-events-none whitespace-nowrap bg-[#09090b] border border-[#27272a] text-[#e4e4e7] rounded-lg px-2.5 py-1.5 text-[11px] font-medium shadow-xl shadow-black/60 z-50">
+                <span className="absolute right-0 top-full mt-1.5 scale-95 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-200 ease-out pointer-events-none whitespace-nowrap bg-[#09090b] border border-[#27272a] text-[#e4e4e7] rounded-lg px-2.5 py-1.5 text-[11px] font-medium shadow-xl shadow-black/60 z-50">
                   Collapse Sidebar
                 </span>
               </button>
             </>
           ) : (
-            <Link 
-              href={user ? "/dashboard" : "/"}
-              className="cursor-pointer relative group"
+            <button 
+              onClick={(e) => {
+                e.preventDefault();
+                toggleSidebar();
+              }}
+              className="cursor-pointer relative group bg-transparent border-none p-0 outline-none focus:ring-1 focus:ring-brand-success/30 rounded-xl"
+              aria-label="Expand Sidebar"
             >
               <img 
                 src="/logo.svg" 
@@ -119,7 +138,7 @@ export default function Navigation() {
               <span className="absolute left-full ml-2.5 top-1/2 -translate-y-1/2 scale-95 opacity-0 group-hover:scale-100 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-200 ease-out pointer-events-none whitespace-nowrap bg-[#09090b] border border-[#27272a] text-[#e4e4e7] rounded-lg px-2.5 py-1.5 text-[11px] font-medium shadow-xl shadow-black/60 z-50">
                 Expand Sidebar
               </span>
-            </Link>
+            </button>
           )}
         </div>
 
