@@ -5,6 +5,7 @@
 
 **Tagline:** Your personal operating system for habits, fitness, and wellness that actually adapts to your life and shows you why you’re winning or failing.
 **Live URL:** Already deployed on Vercel at `https://momntm.vercel.app`
+
 ---
 
 ## 1. Vision & Objectives
@@ -73,9 +74,9 @@ Build a **production-grade**, beautiful, and genuinely useful habit + fitness + 
 
 ---
 
-## 4. User Flows & Journeys
+## 4. User Flows, Journeys & Page Details
 
-See **APP_FLOW.md** for complete routing, navigation structure, page details, and interaction flows.
+See **APP_FLOW.md** and **PAGE_SPECS.md** for complete routing, navigation structure, page details, and interaction flows.
 
 **Critical Journeys:**
 1. **Onboarding:** Register → Profile setup → Suggested starter habits/goals → Land on `/today`.
@@ -138,6 +139,7 @@ See **PHASES.md** for detailed deliverables, timelines, success criteria, and wa
 - **TRD.md** — Technical decisions, architecture, stack, and standards.
 - **APP_FLOW.md** — Routing, navigation, and user journeys.
 - **UIUX_BRIEF.md** — Visual design system and interaction rules.
+- **PAGE_SPECS.md** — Detailed layout, content, and behavior for every individual page/route.
 - **SCHEMA.md** — Database schema and data models.
 - **PHASES.md** — Execution plan and phase details.
 - **NOTES.md** — Daily notes, learnings, and todos.
