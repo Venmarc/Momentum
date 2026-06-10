@@ -116,9 +116,9 @@ export default function Navigation() {
                 }} 
                 className="p-1.5 rounded-lg border border-[#27272a] hover:border-zinc-700 bg-transparent text-[#a1a1aa] hover:text-white cursor-pointer hover:bg-[#121214] transition-colors active-bounce relative group"
               >
-                <PanelLeftClose className="w-4 h-4" />
+                {collapsed ? <PanelLeft className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
                 <span className="absolute right-0 top-full mt-1.5 scale-95 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-200 ease-out pointer-events-none whitespace-nowrap bg-[#09090b] border border-[#27272a] text-[#e4e4e7] rounded-lg px-2.5 py-1.5 text-[11px] font-medium shadow-xl shadow-black/60 z-50">
-                  Collapse Sidebar
+                  {collapsed ? 'Pin Sidebar' : 'Collapse Sidebar'}
                 </span>
               </button>
             </>
@@ -173,39 +173,56 @@ export default function Navigation() {
         </nav>
 
         {/* Footer/User Profile */}
-        <div className={`p-4 border-t border-[#1a1a1c] flex flex-col gap-3.5 transition-all duration-300 w-full`}>
-          {/* Settings Link */}
-          <Link
-            href="/settings"
-            className={`flex items-center rounded-xl text-xs font-semibold transition-all active-bounce relative group ${
-              !isExpandedVisual ? 'justify-center p-3' : 'gap-3 px-4 py-3'
-            } ${
-              pathname === '/settings'
-                ? 'bg-[#18181b] text-brand-success border border-[#27272a]'
-                : 'text-[#a1a1aa] hover:bg-[#121214] hover:text-[#f4f4f5] border border-transparent'
-            }`}
-          >
-            <Settings className={`w-4 h-4 shrink-0 ${pathname === '/settings' ? 'text-brand-success' : ''}`} />
-            {isExpandedVisual && <span>Settings</span>}
-            {!isExpandedVisual && (
+        <div className={`p-4 border-t border-[#1a1a1c] flex flex-col gap-3 transition-all duration-300 w-full ${!isExpandedVisual ? 'items-center' : ''}`}>
+          {/* Collapsed State: Settings Link above UserButton */}
+          {!isExpandedVisual && (
+            <Link
+              href="/settings"
+              className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all active-bounce relative group ${
+                pathname === '/settings'
+                  ? 'bg-[#18181b] text-brand-success border border-[#27272a]'
+                  : 'text-[#a1a1aa] hover:bg-[#121214] hover:text-[#f4f4f5] border border-transparent'
+              }`}
+            >
+              <Settings className={`w-4 h-4 shrink-0 ${pathname === '/settings' ? 'text-brand-success' : ''}`} />
               <span className="absolute left-full ml-2.5 top-1/2 -translate-y-1/2 scale-95 opacity-0 group-hover:scale-100 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-200 ease-out pointer-events-none whitespace-nowrap bg-[#09090b] border border-[#27272a] text-[#e4e4e7] rounded-lg px-2.5 py-1.5 text-[11px] font-medium shadow-xl shadow-black/60 z-50">
                 Settings
               </span>
-            )}
-          </Link>
+            </Link>
+          )}
 
-          {/* User profile */}
-          <div className={`flex items-center transition-all duration-300 ${!isExpandedVisual ? 'justify-center' : 'gap-3'}`}>
-            <UserButton />
-            {isExpandedVisual ? (
-              <div className="text-left select-none max-w-[140px] truncate">
-                <p className="text-xs font-bold text-white leading-tight truncate">{displayName}</p>
-                <p className="text-[10px] text-[#71717a] font-medium leading-tight mt-0.5">Operating System</p>
-              </div>
-            ) : (
-              <span className="absolute left-full ml-2.5 top-1/2 -translate-y-1/2 scale-95 opacity-0 group-hover:scale-100 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-200 ease-out pointer-events-none whitespace-nowrap bg-[#09090b] border border-[#27272a] text-[#e4e4e7] rounded-lg px-2.5 py-1.5 text-[11px] font-medium shadow-xl shadow-black/60 z-50">
-                {displayName}
-              </span>
+          {/* User profile row */}
+          <div className={`flex items-center w-full transition-all duration-300 ${!isExpandedVisual ? 'justify-center' : 'justify-between gap-3'}`}>
+            <div className="flex items-center gap-3 truncate">
+              <UserButton />
+              {isExpandedVisual ? (
+                <div className="text-left select-none max-w-[120px] truncate">
+                  <p className="text-xs font-bold text-white leading-tight truncate">{displayName}</p>
+                  <p className="text-[10px] text-[#71717a] font-medium leading-tight mt-0.5">Operating System</p>
+                </div>
+              ) : (
+                <span className="absolute left-full ml-2.5 top-1/2 -translate-y-1/2 scale-95 opacity-0 group-hover:scale-100 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-200 ease-out pointer-events-none whitespace-nowrap bg-[#09090b] border border-[#27272a] text-[#e4e4e7] rounded-lg px-2.5 py-1.5 text-[11px] font-medium shadow-xl shadow-black/60 z-50">
+                  {displayName}
+                </span>
+              )}
+            </div>
+
+            {/* Expanded State: Settings button next to user profile on the right */}
+            {isExpandedVisual && (
+              <Link
+                href="/settings"
+                className={`w-8 h-8 flex items-center justify-center rounded-lg transition-all active-bounce shrink-0 relative group ${
+                  pathname === '/settings'
+                    ? 'bg-[#18181b] text-brand-success border border-[#27272a]'
+                    : 'text-[#a1a1aa] hover:bg-[#121214] hover:text-[#f4f4f5] border border-transparent hover:border-[#27272a]'
+                }`}
+                aria-label="Settings"
+              >
+                <Settings className={`w-4 h-4 ${pathname === '/settings' ? 'text-brand-success' : ''}`} />
+                <span className="absolute bottom-full mb-2.5 left-1/2 -translate-x-1/2 scale-95 opacity-0 group-hover:scale-100 group-hover:opacity-100 group-hover:-translate-y-1 transition-all duration-200 ease-out pointer-events-none whitespace-nowrap bg-[#09090b] border border-[#27272a] text-[#e4e4e7] rounded-lg px-2.5 py-1.5 text-[11px] font-medium shadow-xl shadow-black/60 z-50">
+                  Settings
+                </span>
+              </Link>
             )}
           </div>
         </div>
