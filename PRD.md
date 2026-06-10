@@ -4,7 +4,7 @@
 **Document Type:** Product Requirements Document
 
 **Tagline:** Your personal operating system for habits, fitness, and wellness that actually adapts to your life and shows you why you’re winning or failing.
-**Live URL:** Already deployed on Vercel at `https://momntm.vercel.app`
+**Live URL:** Deployed on Vercel at `https://momntm.vercel.app`
 
 ---
 

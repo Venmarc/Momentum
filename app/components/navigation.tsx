@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
   LayoutDashboard, CheckSquare, Dumbbell, Heart, TrendingUp, 
-  PanelLeftClose, PanelLeft
+  PanelLeftClose, PanelLeft, Settings, Target
 } from 'lucide-react';
 import { UserButton, useUser } from '@clerk/nextjs';
 import { useSidebarStore } from '@/app/hooks/use-sidebar-store';
@@ -17,6 +17,7 @@ const navItems = [
   { name: 'Fitness', href: '/fitness', icon: Dumbbell },
   { name: 'Wellness', href: '/wellness', icon: Heart },
   { name: 'Progress', href: '/progress', icon: TrendingUp },
+  { name: 'Goals', href: '/goals', icon: Target },
 ];
 
 export default function Navigation() {
@@ -172,8 +173,29 @@ export default function Navigation() {
         </nav>
 
         {/* Footer/User Profile */}
-        <div className={`p-4 border-t border-[#1a1a1c] flex items-center transition-all duration-300 ${!isExpandedVisual ? 'justify-center' : 'justify-between'}`}>
-          <div className="flex items-center gap-3 relative group">
+        <div className={`p-4 border-t border-[#1a1a1c] flex flex-col gap-3.5 transition-all duration-300 w-full`}>
+          {/* Settings Link */}
+          <Link
+            href="/settings"
+            className={`flex items-center rounded-xl text-xs font-semibold transition-all active-bounce relative group ${
+              !isExpandedVisual ? 'justify-center p-3' : 'gap-3 px-4 py-3'
+            } ${
+              pathname === '/settings'
+                ? 'bg-[#18181b] text-brand-success border border-[#27272a]'
+                : 'text-[#a1a1aa] hover:bg-[#121214] hover:text-[#f4f4f5] border border-transparent'
+            }`}
+          >
+            <Settings className={`w-4 h-4 shrink-0 ${pathname === '/settings' ? 'text-brand-success' : ''}`} />
+            {isExpandedVisual && <span>Settings</span>}
+            {!isExpandedVisual && (
+              <span className="absolute left-full ml-2.5 top-1/2 -translate-y-1/2 scale-95 opacity-0 group-hover:scale-100 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-200 ease-out pointer-events-none whitespace-nowrap bg-[#09090b] border border-[#27272a] text-[#e4e4e7] rounded-lg px-2.5 py-1.5 text-[11px] font-medium shadow-xl shadow-black/60 z-50">
+                Settings
+              </span>
+            )}
+          </Link>
+
+          {/* User profile */}
+          <div className={`flex items-center transition-all duration-300 ${!isExpandedVisual ? 'justify-center' : 'gap-3'}`}>
             <UserButton />
             {isExpandedVisual ? (
               <div className="text-left select-none max-w-[140px] truncate">
@@ -200,7 +222,7 @@ export default function Navigation() {
 
       {/* Mobile Bottom Bar */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 h-16 border-t border-[#1a1a1c] bg-[#09090b] flex items-center justify-around z-30">
-        {navItems.map((item) => {
+        {navItems.slice(0, 5).map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;
           return (
