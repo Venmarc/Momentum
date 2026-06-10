@@ -45,3 +45,6 @@ next-env.d.ts
 
 # agent companion / visual state
 /.superpowers/
+
+# docs
+/docs/
