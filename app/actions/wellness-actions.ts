@@ -144,7 +144,7 @@ export async function upsertWellnessEntry(input: WellnessInput) {
     }
 
     revalidatePath('/wellness');
-    revalidatePath('/');
+    revalidatePath('/today');
     return { success: true, data: resultData };
   } catch (err) {
     console.error('Unexpected error in upsertWellnessEntry action:', err);
@@ -187,7 +187,7 @@ export async function deleteWellnessEntry(id: string) {
     }
 
     revalidatePath('/wellness');
-    revalidatePath('/');
+    revalidatePath('/today');
     return { success: true };
   } catch (err) {
     console.error('Unexpected error in deleteWellnessEntry action:', err);

@@ -3,10 +3,7 @@ import { redirect } from 'next/navigation';
 import { createSupabaseServiceClient } from '@/app/lib/supabase-server';
 import { ensureProfile } from '@/app/actions/auth-actions';
 import Link from 'next/link';
-import { 
-  CheckSquare, Dumbbell, Heart, Activity, TrendingUp, Calendar, 
-  Clock, ArrowRight, UserPlus, LogIn, ChevronRight, CheckCircle2, Circle
-} from 'lucide-react';
+import { Dumbbell, Heart, Activity, ChevronRight } from 'lucide-react';
 import BodyCompWidget from '@/app/components/dashboard/body-comp-widget';
 import LifeScoreRing, { DashboardHabitsChecklist } from '@/app/components/dashboard/life-score-ring';
 import GoalsTracker from '@/app/components/dashboard/goals-tracker';
@@ -181,7 +178,7 @@ export default async function TodayPage() {
                 <div>
                   <p className="text-[9px] uppercase tracking-wider text-[#a1a1aa] font-bold">Last Training Session</p>
                   <p className="text-sm font-bold text-white mt-0.5">{latestWorkout.name}</p>
-                  <p className="text-xs text-[#71717a] mt-0.5">
+                  <p className="text-xs text-[#a1a1aa] mt-0.5">
                     {new Date(latestWorkout.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                     {latestWorkout.total_duration_minutes ? ` • ${latestWorkout.total_duration_minutes} min` : ''}
                   </p>
@@ -197,7 +194,7 @@ export default async function TodayPage() {
             ) : (
               <div className="py-6 text-center border border-dashed border-[#27272a] rounded-xl p-4">
                 <p className="text-xs text-[#a1a1aa]">No sessions logged yet.</p>
-                <p className="text-[10px] text-[#71717a] mt-0.5">Preset routines are ready to load inside the logger.</p>
+                <p className="text-[10px] text-[#a1a1aa] mt-0.5">Preset routines are ready to load inside the logger.</p>
               </div>
             )}
           </div>
@@ -227,19 +224,19 @@ export default async function TodayPage() {
             {todayWellness ? (
               <div className="grid grid-cols-2 gap-2.5">
                 <div className="bg-[#121214] border border-[#1e1e22] rounded-xl p-2.5 flex flex-col justify-center">
-                  <span className="text-[8px] text-[#71717a] font-bold uppercase tracking-wider">Mood Index</span>
+                  <span className="text-[8px] text-[#a1a1aa] font-bold uppercase tracking-wider">Mood Index</span>
                   <span className="text-xs font-extrabold text-white mt-0.5">{todayWellness.mood} / 5</span>
                 </div>
                 <div className="bg-[#121214] border border-[#1e1e22] rounded-xl p-2.5 flex flex-col justify-center">
-                  <span className="text-[8px] text-[#71717a] font-bold uppercase tracking-wider">Energy Level</span>
+                  <span className="text-[8px] text-[#a1a1aa] font-bold uppercase tracking-wider">Energy Level</span>
                   <span className="text-xs font-extrabold text-white mt-0.5">{todayWellness.energy} / 5</span>
                 </div>
                 <div className="bg-[#121214] border border-[#1e1e22] rounded-xl p-2.5 flex flex-col justify-center">
-                  <span className="text-[8px] text-[#71717a] font-bold uppercase tracking-wider">Sleep Hours</span>
+                  <span className="text-[8px] text-[#a1a1aa] font-bold uppercase tracking-wider">Sleep Hours</span>
                   <span className="text-xs font-extrabold text-white mt-0.5">{todayWellness.sleep_hours} hrs</span>
                 </div>
                 <div className="bg-[#121214] border border-[#1e1e22] rounded-xl p-2.5 flex flex-col justify-center">
-                  <span className="text-[8px] text-[#71717a] font-bold uppercase tracking-wider">Sleep Quality</span>
+                  <span className="text-[8px] text-[#a1a1aa] font-bold uppercase tracking-wider">Sleep Quality</span>
                   <span className="text-xs font-extrabold text-white mt-0.5">{todayWellness.sleep_quality} / 5</span>
                 </div>
               </div>

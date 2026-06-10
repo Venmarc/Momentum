@@ -145,7 +145,7 @@ export async function saveBodyMeasurement(input: BodyMeasurementInput) {
     }
 
     revalidatePath('/progress');
-    revalidatePath('/');
+    revalidatePath('/today');
     return { success: true, data: resultData };
   } catch (err) {
     console.error('Unexpected error in saveBodyMeasurement action:', err);
@@ -188,7 +188,7 @@ export async function deleteBodyMeasurement(id: string) {
     }
 
     revalidatePath('/progress');
-    revalidatePath('/');
+    revalidatePath('/today');
     return { success: true };
   } catch (err) {
     console.error('Unexpected error in deleteBodyMeasurement action:', err);

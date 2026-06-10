@@ -206,7 +206,7 @@ export async function saveWorkout(input: SaveWorkoutInput) {
     }
 
     revalidatePath('/fitness');
-    revalidatePath('/');
+    revalidatePath('/today');
     return { success: true, workoutId: activeWorkoutId };
   } catch (err) {
     console.error('Unexpected error in saveWorkout action:', err);
@@ -261,7 +261,7 @@ export async function deleteWorkout(workoutId: string) {
     }
 
     revalidatePath('/fitness');
-    revalidatePath('/');
+    revalidatePath('/today');
     return { success: true };
   } catch (err) {
     console.error('Unexpected error in deleteWorkout action:', err);

@@ -46,7 +46,7 @@ export async function createHabit(input: HabitInput) {
     }
 
     revalidatePath('/habits');
-    revalidatePath('/');
+    revalidatePath('/today');
     return { success: true, data };
   } catch (err) {
     console.error('Unexpected error in createHabit action:', err);
@@ -100,7 +100,7 @@ export async function updateHabit(id: string, input: Partial<HabitInput>) {
     }
 
     revalidatePath('/habits');
-    revalidatePath('/');
+    revalidatePath('/today');
     return { success: true, data };
   } catch (err) {
     console.error('Unexpected error in updateHabit action:', err);
@@ -155,7 +155,7 @@ export async function deleteHabit(id: string) {
     }
 
     revalidatePath('/habits');
-    revalidatePath('/');
+    revalidatePath('/today');
     return { success: true };
   } catch (err) {
     console.error('Unexpected error in deleteHabit action:', err);
@@ -249,7 +249,7 @@ export async function logHabit(input: HabitLogInput) {
     }
 
     revalidatePath('/habits');
-    revalidatePath('/');
+    revalidatePath('/today');
     return { success: true, data: resultData };
   } catch (err) {
     console.error('Unexpected error in logHabit:', err);
