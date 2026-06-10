@@ -24,9 +24,9 @@ export const metadata = {
 export default async function LandingPage() {
   const { userId } = await auth();
 
-  // Redirect to dashboard if logged in
+  // Redirect to today if logged in
   if (userId) {
-    redirect('/dashboard');
+    redirect('/today');
   }
 
   return (

@@ -74,7 +74,7 @@ export async function createGoal(input: GoalInput) {
     }
 
     revalidatePath('/goals');
-    revalidatePath('/dashboard');
+    revalidatePath('/today');
     return { success: true, data };
   } catch (err) {
     console.error('Unexpected error in createGoal:', err);
@@ -111,7 +111,7 @@ export async function updateGoalProgress(id: string, currentValue: number) {
     }
 
     revalidatePath('/goals');
-    revalidatePath('/dashboard');
+    revalidatePath('/today');
     return { success: true, data };
   } catch (err) {
     console.error('Unexpected error in updateGoalProgress:', err);
@@ -157,7 +157,7 @@ export async function toggleGoalActive(id: string) {
     }
 
     revalidatePath('/goals');
-    revalidatePath('/dashboard');
+    revalidatePath('/today');
     return { success: true, data };
   } catch (err) {
     console.error('Unexpected error in toggleGoalActive:', err);
@@ -188,7 +188,7 @@ export async function deleteGoal(id: string) {
     }
 
     revalidatePath('/goals');
-    revalidatePath('/dashboard');
+    revalidatePath('/today');
     return { success: true };
   } catch (err) {
     console.error('Unexpected error in deleteGoal:', err);

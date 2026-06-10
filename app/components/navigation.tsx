@@ -12,7 +12,7 @@ import { useSidebarStore } from '@/app/hooks/use-sidebar-store';
 import { useRef } from 'react';
 
 const navItems = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { name: 'Today', href: '/today', icon: LayoutDashboard },
   { name: 'Habits', href: '/habits', icon: CheckSquare },
   { name: 'Fitness', href: '/fitness', icon: Dumbbell },
   { name: 'Wellness', href: '/wellness', icon: Heart },
@@ -96,7 +96,7 @@ export default function Navigation() {
           {isExpandedVisual ? (
             <>
               <Link 
-                href={user ? "/dashboard" : "/"}
+                href={user ? "/today" : "/"}
                 className="flex items-center gap-2 select-none cursor-pointer group/logo"
               >
                 <img 
