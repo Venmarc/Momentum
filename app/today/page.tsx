@@ -142,6 +142,16 @@ export default async function TodayPage() {
     year: 'numeric'
   });
 
+  // Wellness text labels
+  const moodLabels = ['Bad', 'Poor', 'Neutral', 'Good', 'Excellent'];
+  const moodEmojis = ['😢', '🙁', '😐', '🙂', '😆'];
+  const energyLabels = ['Exhausted', 'Sluggish', 'Balanced', 'Productive', 'High'];
+  const sleepQualityLabels = ['Very Poor', 'Poor', 'Average', 'Good', 'Excellent'];
+
+  const moodText = todayWellness ? `${moodEmojis[todayWellness.mood - 1] || '😐'} ${moodLabels[todayWellness.mood - 1] || 'Neutral'}` : '';
+  const energyText = todayWellness ? `⚡ ${energyLabels[todayWellness.energy - 1] || 'Balanced'}` : '';
+  const sleepQualityText = todayWellness ? `⭐ ${sleepQualityLabels[todayWellness.sleep_quality - 1] || 'Average'}` : '';
+
   return (
     <div className="flex-1 max-w-4xl mx-auto w-full p-4 md:p-6 space-y-8 bg-black text-[#f4f4f5] pb-20">
       
@@ -242,11 +252,11 @@ export default async function TodayPage() {
                 <div className="grid grid-cols-2 gap-2.5">
                   <div className="bg-[#121214] border border-[#1e1e22] rounded-xl p-2.5 flex flex-col justify-center">
                     <span className="text-[8px] text-[#a1a1aa] font-bold uppercase tracking-wider">Mood Index</span>
-                    <span className="text-xs font-extrabold text-white mt-0.5">{todayWellness.mood} / 5</span>
+                    <span className="text-xs font-extrabold text-white mt-0.5">{moodText}</span>
                   </div>
                   <div className="bg-[#121214] border border-[#1e1e22] rounded-xl p-2.5 flex flex-col justify-center">
                     <span className="text-[8px] text-[#a1a1aa] font-bold uppercase tracking-wider">Energy Level</span>
-                    <span className="text-xs font-extrabold text-white mt-0.5">{todayWellness.energy} / 5</span>
+                    <span className="text-xs font-extrabold text-white mt-0.5">{energyText}</span>
                   </div>
                   <div className="bg-[#121214] border border-[#1e1e22] rounded-xl p-2.5 flex flex-col justify-center">
                     <span className="text-[8px] text-[#a1a1aa] font-bold uppercase tracking-wider">Sleep Hours</span>
@@ -254,7 +264,7 @@ export default async function TodayPage() {
                   </div>
                   <div className="bg-[#121214] border border-[#1e1e22] rounded-xl p-2.5 flex flex-col justify-center">
                     <span className="text-[8px] text-[#a1a1aa] font-bold uppercase tracking-wider">Sleep Quality</span>
-                    <span className="text-xs font-extrabold text-white mt-0.5">{todayWellness.sleep_quality} / 5</span>
+                    <span className="text-xs font-extrabold text-white mt-0.5">{sleepQualityText}</span>
                   </div>
                 </div>
               ) : (

@@ -171,8 +171,43 @@ export default function SettingsClient({ initialProfile, initialPreferences }: S
     return [headerRow, ...rows].join('\r\n');
   };
 
-  // Trigger File Download
-  const triggerDownload = (content: string, filename: string, contentType: string) => {
+  // Trigger File Download using File System Access API with standard fallback
+  const triggerDownload = async (content: string, filename: string, contentType: string) => {
+    // Check if showSaveFilePicker is supported by the browser
+    if (typeof window !== 'undefined' && 'showSaveFilePicker' in window) {
+      try {
+        const isJson = contentType.includes('json');
+        const options = {
+          suggestedName: filename,
+          types: [
+            isJson 
+              ? {
+                  description: 'JSON Backup File',
+                  accept: { 'application/json': ['.json'] },
+                }
+              : {
+                  description: 'CSV Data File',
+                  accept: { 'text/csv': ['.csv'] },
+                }
+          ],
+        };
+        const handle = await (window as any).showSaveFilePicker(options);
+        const writable = await handle.createWritable();
+        await writable.write(content);
+        await writable.close();
+        return;
+      } catch (err: any) {
+        // User aborted/canceled the picker
+        if (err.name === 'AbortError') {
+          console.log('User cancelled save picker');
+          return;
+        }
+        // For other errors, log and fall back to standard anchor tag
+        console.error('File System Access API failed, falling back to anchor tag:', err);
+      }
+    }
+
+    // Anchor-tag download fallback
     const blob = new Blob([content], { type: contentType });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -196,8 +231,8 @@ export default function SettingsClient({ initialProfile, initialPreferences }: S
 
       const jsonString = JSON.stringify(res.data, null, 2);
       const today = new Date().toISOString().split('T')[0];
-      triggerDownload(jsonString, `momentum_backup_${today}.json`, 'application/json');
-      toast.success('JSON backup downloaded successfully!');
+      await triggerDownload(jsonString, `momentum_backup_${today}.json`, 'application/json');
+      toast.success('JSON backup exported successfully!');
     } catch (err) {
       console.error(err);
       toast.error('An error occurred during JSON export.');
@@ -224,8 +259,8 @@ export default function SettingsClient({ initialProfile, initialPreferences }: S
 
       const csvContent = convertToCSV(rawArray);
       const today = new Date().toISOString().split('T')[0];
-      triggerDownload(csvContent, `momentum_${type}_export_${today}.csv`, 'text/csv;charset=utf-8;');
-      toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} CSV downloaded successfully!`);
+      await triggerDownload(csvContent, `momentum_${type}_export_${today}.csv`, 'text/csv;charset=utf-8;');
+      toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} CSV exported successfully!`);
     } catch (err) {
       console.error(err);
       toast.error(`An error occurred exporting ${type} to CSV.`);
