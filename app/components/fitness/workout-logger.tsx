@@ -8,7 +8,7 @@ import { toast } from '@/app/hooks/use-toast';
 import ExerciseSelector from './exercise-selector';
 import { 
   Play, Trash2, Plus, Calendar, Clock, Edit3, X, Save, 
-  ChevronRight, Dumbbell, AlertTriangle, Timer, Check, RefreshCw, Scale
+  ChevronRight, Dumbbell, AlertTriangle, Timer, Check, RefreshCw, Scale, Info
 } from 'lucide-react';
 
 interface Exercise {
@@ -354,9 +354,9 @@ export default function WorkoutLogger() {
                               <th className="py-2 pl-2 w-24">
                                 <div className="flex items-center gap-1">
                                   RPE
-                                  <span className="group/rpe relative cursor-help text-[10px] text-zinc-500 font-bold bg-[#18181b] border border-[#27272a] rounded-full w-3.5 h-3.5 flex items-center justify-center">
-                                    ?
-                                    <span className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover/rpe:block w-48 bg-zinc-905 bg-zinc-900 text-[10px] text-zinc-300 font-normal p-2.5 rounded-lg border border-[#27272a] shadow-lg leading-relaxed normal-case z-30">
+                                  <span className="group/rpe relative cursor-help text-[10px] text-zinc-500 font-bold bg-[#18181b] border border-[#27272a] rounded-full w-4 h-4 flex items-center justify-center">
+                                    <Info className="w-2.5 h-2.5" />
+                                    <span className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover/rpe:block w-48 bg-zinc-900 text-[10px] text-zinc-300 font-normal p-2.5 rounded-lg border border-[#27272a] shadow-lg leading-relaxed normal-case z-30">
                                       <strong>RPE (Rate of Perceived Exertion):</strong><br/>
                                       10 = Maximal effort, no reps left<br/>
                                       9 = 1 rep left<br/>
