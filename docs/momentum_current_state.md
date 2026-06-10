@@ -16,6 +16,7 @@ Momentum is designed as a premium, self-contained fitness and habit operating sy
 * **Client State Management**: Zustand (for active workout store and sidebar collapse settings) + local React state hooks.
 * **Data Visualization**: Recharts (for responsive strength progress curves, habit weekly adherence, and wellness trend analysis).
 * **Icons**: Lucide React.
+* **Navigation & Sidebar**: Contains left-aligned collapsible navigation displaying Today (`/today`), Habits (`/habits`), Fitness (`/fitness`), Wellness (`/wellness`), Progress (`/progress`), Goals (`/goals`), and bottom-aligned Settings (`/settings`) links.
 
 ---
 
