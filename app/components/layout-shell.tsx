@@ -51,7 +51,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
       )}
 
       <div 
-        className={`flex-1 flex flex-col min-h-screen pt-16 md:pt-0 pb-24 md:pb-0 min-w-0 transition-all duration-200 ${
+        className={`flex-1 flex flex-col min-h-screen pt-16 md:pt-0 pb-24 md:pb-0 min-w-0 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           collapsed ? 'md:pl-16' : 'md:pl-16 lg:pl-64'
         }`}
       >
