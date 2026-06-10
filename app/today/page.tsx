@@ -7,6 +7,7 @@ import { Dumbbell, Heart, Activity, ChevronRight } from 'lucide-react';
 import BodyCompWidget from '@/app/components/dashboard/body-comp-widget';
 import LifeScoreRing, { DashboardHabitsChecklist } from '@/app/components/dashboard/life-score-ring';
 import GoalsTracker from '@/app/components/dashboard/goals-tracker';
+import { getProfileAndPreferences } from '@/app/actions/settings-actions';
 
 export const metadata = {
   title: 'Today | Momentum',
@@ -24,6 +25,17 @@ export default async function TodayPage() {
   await ensureProfile();
   const supabase = createSupabaseServiceClient();
   const todayStr = new Date().toISOString().split('T')[0];
+
+  // Fetch preferences to toggle dashboard widgets layout
+  const prefRes = await getProfileAndPreferences();
+  const dbWidgets = prefRes?.preferences?.dashboard_widgets as Record<string, boolean> | null;
+  const widgets = {
+    habitsChecklist: dbWidgets?.habitsChecklist ?? true,
+    fitnessStatus: dbWidgets?.fitnessStatus ?? true,
+    wellnessLog: dbWidgets?.wellnessLog ?? true,
+    goalsTracker: dbWidgets?.goalsTracker ?? true,
+    bodyComposition: dbWidgets?.bodyComposition ?? true,
+  };
 
   // 1. Fetch user profile
   const { data: profile } = await supabase
@@ -158,113 +170,123 @@ export default async function TodayPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         
         {/* Habits Checklist Widget */}
-        <DashboardHabitsChecklist habits={habits || []} todayLogs={todayLogs || []} />
-
+        {widgets.habitsChecklist && (
+          <DashboardHabitsChecklist habits={habits || []} todayLogs={todayLogs || []} />
+        )}
+ 
         {/* Fitness / Workout Logger Widget */}
-        <div className="bg-[#09090b] border border-[#27272a] rounded-2xl p-5 space-y-4 flex flex-col justify-between min-h-[220px]">
-          <div className="space-y-3">
-            <div className="flex items-center justify-between border-b border-[#27272a] pb-2">
-              <h2 className="text-sm font-bold text-white flex items-center gap-2">
-                <Dumbbell className="w-4.5 h-4.5 text-brand-success" />
-                Fitness Status
-              </h2>
-              <span className="text-[10px] bg-[#18181b] border border-[#27272a] text-[#a1a1aa] px-2 py-0.5 rounded-md font-semibold">
-                {totalWorkoutsLogged} workouts
-              </span>
-            </div>
-
-            {latestWorkout ? (
-              <div className="bg-[#121214] border border-[#1e1e22] rounded-xl p-4 space-y-3.5">
-                <div>
-                  <p className="text-[9px] uppercase tracking-wider text-[#a1a1aa] font-bold">Last Training Session</p>
-                  <p className="text-sm font-bold text-white mt-0.5">{latestWorkout.name}</p>
-                  <p className="text-xs text-[#a1a1aa] mt-0.5">
-                    {new Date(latestWorkout.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                    {latestWorkout.total_duration_minutes ? ` • ${latestWorkout.total_duration_minutes} min` : ''}
-                  </p>
-                </div>
-                {latestWorkout.total_volume_kg && latestWorkout.total_volume_kg > 0 ? (
-                  <div className="flex items-center gap-2 text-xs font-bold text-white border-t border-[#1e1e22] pt-2.5">
-                    <Activity className="w-3.5 h-3.5 text-brand-success" />
-                    <span>Total Volume: </span>
-                    <span className="text-brand-success">{latestWorkout.total_volume_kg.toLocaleString()} kg</span>
+        {widgets.fitnessStatus && (
+          <div className="bg-[#09090b] border border-[#27272a] rounded-2xl p-5 space-y-4 flex flex-col justify-between min-h-[220px]">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between border-b border-[#27272a] pb-2">
+                <h2 className="text-sm font-bold text-white flex items-center gap-2">
+                  <Dumbbell className="w-4.5 h-4.5 text-brand-success" />
+                  Fitness Status
+                </h2>
+                <span className="text-[10px] bg-[#18181b] border border-[#27272a] text-[#a1a1aa] px-2 py-0.5 rounded-md font-semibold">
+                  {totalWorkoutsLogged} workouts
+                </span>
+              </div>
+ 
+              {latestWorkout ? (
+                <div className="bg-[#121214] border border-[#1e1e22] rounded-xl p-4 space-y-3.5">
+                  <div>
+                    <p className="text-[9px] uppercase tracking-wider text-[#a1a1aa] font-bold">Last Training Session</p>
+                    <p className="text-sm font-bold text-white mt-0.5">{latestWorkout.name}</p>
+                    <p className="text-xs text-[#a1a1aa] mt-0.5">
+                      {new Date(latestWorkout.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                      {latestWorkout.total_duration_minutes ? ` • ${latestWorkout.total_duration_minutes} min` : ''}
+                    </p>
                   </div>
-                ) : null}
-              </div>
-            ) : (
-              <div className="py-6 text-center border border-dashed border-[#27272a] rounded-xl p-4">
-                <p className="text-xs text-[#a1a1aa]">No sessions logged yet.</p>
-                <p className="text-[10px] text-[#a1a1aa] mt-0.5">Preset routines are ready to load inside the logger.</p>
-              </div>
-            )}
-          </div>
-
-          <Link
-            href="/fitness"
-            className="w-full mt-2 py-2 bg-[#121214] hover:bg-[#18181b] border border-[#27272a] hover:border-[#3f3f46] rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 text-white transition-colors cursor-pointer outline-none focus:ring-1 focus:ring-[#22c55e]/50"
-          >
-            Start Workout
-            <ChevronRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-
-        {/* Wellness snapshot widget */}
-        <div className="bg-[#09090b] border border-[#27272a] rounded-2xl p-5 space-y-4 flex flex-col justify-between min-h-[220px]">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between border-b border-[#27272a] pb-2">
-              <h2 className="text-sm font-bold text-white flex items-center gap-2">
-                <Heart className="w-4.5 h-4.5 text-pink-400" />
-                Wellness Log
-              </h2>
-              <span className="text-[10px] bg-pink-500/10 border border-pink-500/20 text-pink-400 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">
-                {todayWellness ? 'Logged' : 'Pending'}
-              </span>
+                  {latestWorkout.total_volume_kg && latestWorkout.total_volume_kg > 0 ? (
+                    <div className="flex items-center gap-2 text-xs font-bold text-white border-t border-[#1e1e22] pt-2.5">
+                      <Activity className="w-3.5 h-3.5 text-brand-success" />
+                      <span>Total Volume: </span>
+                      <span className="text-brand-success">{latestWorkout.total_volume_kg.toLocaleString()} kg</span>
+                    </div>
+                  ) : null}
+                </div>
+              ) : (
+                <div className="py-6 text-center border border-dashed border-[#27272a] rounded-xl p-4">
+                  <p className="text-xs text-[#a1a1aa]">No sessions logged yet.</p>
+                  <p className="text-[10px] text-[#a1a1aa] mt-0.5">Preset routines are ready to load inside the logger.</p>
+                </div>
+              )}
             </div>
-
-            {todayWellness ? (
-              <div className="grid grid-cols-2 gap-2.5">
-                <div className="bg-[#121214] border border-[#1e1e22] rounded-xl p-2.5 flex flex-col justify-center">
-                  <span className="text-[8px] text-[#a1a1aa] font-bold uppercase tracking-wider">Mood Index</span>
-                  <span className="text-xs font-extrabold text-white mt-0.5">{todayWellness.mood} / 5</span>
-                </div>
-                <div className="bg-[#121214] border border-[#1e1e22] rounded-xl p-2.5 flex flex-col justify-center">
-                  <span className="text-[8px] text-[#a1a1aa] font-bold uppercase tracking-wider">Energy Level</span>
-                  <span className="text-xs font-extrabold text-white mt-0.5">{todayWellness.energy} / 5</span>
-                </div>
-                <div className="bg-[#121214] border border-[#1e1e22] rounded-xl p-2.5 flex flex-col justify-center">
-                  <span className="text-[8px] text-[#a1a1aa] font-bold uppercase tracking-wider">Sleep Hours</span>
-                  <span className="text-xs font-extrabold text-white mt-0.5">{todayWellness.sleep_hours} hrs</span>
-                </div>
-                <div className="bg-[#121214] border border-[#1e1e22] rounded-xl p-2.5 flex flex-col justify-center">
-                  <span className="text-[8px] text-[#a1a1aa] font-bold uppercase tracking-wider">Sleep Quality</span>
-                  <span className="text-xs font-extrabold text-white mt-0.5">{todayWellness.sleep_quality} / 5</span>
-                </div>
-              </div>
-            ) : (
-              <div className="py-2">
-                <p className="text-xs font-semibold text-white">How are you feeling today?</p>
-                <p className="text-[10px] text-[#a1a1aa] mt-0.5">Quickly track your daily sleep duration, energy level, and mood scores.</p>
-              </div>
-            )}
+ 
+            <Link
+              href="/fitness"
+              className="w-full mt-2 py-2 bg-[#121214] hover:bg-[#18181b] border border-[#27272a] hover:border-[#3f3f46] rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 text-white transition-colors cursor-pointer outline-none focus:ring-1 focus:ring-[#22c55e]/50"
+            >
+              Start Workout
+              <ChevronRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
-
-          <Link
-            href="/wellness"
-            className="w-full mt-2 py-2 bg-[#121214] hover:bg-[#18181b] border border-[#27272a] hover:border-pink-500/25 text-pink-400 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1 cursor-pointer outline-none focus:ring-1 focus:ring-[#22c55e]/50"
-          >
-            Log Wellness
-            <ChevronRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-
+        )}
+ 
+        {/* Wellness snapshot widget */}
+        {widgets.wellnessLog && (
+          <div className="bg-[#09090b] border border-[#27272a] rounded-2xl p-5 space-y-4 flex flex-col justify-between min-h-[220px]">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between border-b border-[#27272a] pb-2">
+                <h2 className="text-sm font-bold text-white flex items-center gap-2">
+                  <Heart className="w-4.5 h-4.5 text-pink-400" />
+                  Wellness Log
+                </h2>
+                <span className="text-[10px] bg-pink-500/10 border border-pink-500/20 text-pink-400 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                  {todayWellness ? 'Logged' : 'Pending'}
+                </span>
+              </div>
+ 
+              {todayWellness ? (
+                <div className="grid grid-cols-2 gap-2.5">
+                  <div className="bg-[#121214] border border-[#1e1e22] rounded-xl p-2.5 flex flex-col justify-center">
+                    <span className="text-[8px] text-[#a1a1aa] font-bold uppercase tracking-wider">Mood Index</span>
+                    <span className="text-xs font-extrabold text-white mt-0.5">{todayWellness.mood} / 5</span>
+                  </div>
+                  <div className="bg-[#121214] border border-[#1e1e22] rounded-xl p-2.5 flex flex-col justify-center">
+                    <span className="text-[8px] text-[#a1a1aa] font-bold uppercase tracking-wider">Energy Level</span>
+                    <span className="text-xs font-extrabold text-white mt-0.5">{todayWellness.energy} / 5</span>
+                  </div>
+                  <div className="bg-[#121214] border border-[#1e1e22] rounded-xl p-2.5 flex flex-col justify-center">
+                    <span className="text-[8px] text-[#a1a1aa] font-bold uppercase tracking-wider">Sleep Hours</span>
+                    <span className="text-xs font-extrabold text-white mt-0.5">{todayWellness.sleep_hours} hrs</span>
+                  </div>
+                  <div className="bg-[#121214] border border-[#1e1e22] rounded-xl p-2.5 flex flex-col justify-center">
+                    <span className="text-[8px] text-[#a1a1aa] font-bold uppercase tracking-wider">Sleep Quality</span>
+                    <span className="text-xs font-extrabold text-white mt-0.5">{todayWellness.sleep_quality} / 5</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="py-2">
+                  <p className="text-xs font-semibold text-white">How are you feeling today?</p>
+                  <p className="text-[10px] text-[#a1a1aa] mt-0.5">Quickly track your daily sleep duration, energy level, and mood scores.</p>
+                </div>
+              )}
+            </div>
+ 
+            <Link
+              href="/wellness"
+              className="w-full mt-2 py-2 bg-[#121214] hover:bg-[#18181b] border border-[#27272a] hover:border-pink-500/25 text-pink-400 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1 cursor-pointer outline-none focus:ring-1 focus:ring-[#22c55e]/50"
+            >
+              Log Wellness
+              <ChevronRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        )}
+ 
         {/* Goals Tracker Widget */}
-        <GoalsTracker goals={goals || []} />
+        {widgets.goalsTracker && (
+          <GoalsTracker goals={goals || []} />
+        )}
       </div>
-
+ 
       {/* Body Composition section below the 2x2 grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <BodyCompWidget initialMeasurement={latestMeasurement} />
-      </div>
+      {widgets.bodyComposition && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <BodyCompWidget initialMeasurement={latestMeasurement} />
+        </div>
+      )}
 
     </div>
   );

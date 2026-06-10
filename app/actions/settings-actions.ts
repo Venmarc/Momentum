@@ -127,6 +127,7 @@ export async function updateUserPreferences(input: {
   timezone: string;
   week_starts_on: string;
   notifications_enabled: boolean;
+  dashboard_widgets?: Record<string, boolean>;
 }) {
   try {
     const { userId } = await auth();
@@ -142,6 +143,7 @@ export async function updateUserPreferences(input: {
         timezone: input.timezone,
         week_starts_on: input.week_starts_on,
         notifications_enabled: input.notifications_enabled,
+        dashboard_widgets: input.dashboard_widgets,
         updated_at: new Date().toISOString(),
       }, { onConflict: 'clerk_id' });
 
@@ -151,8 +153,8 @@ export async function updateUserPreferences(input: {
     }
 
     return { success: true };
-  } catch (err: any) {
+  } catch (err) {
     console.error('Error in updateUserPreferences:', err);
-    return { error: err?.message || 'An unexpected error occurred' };
+    return { error: err instanceof Error ? err.message : 'An unexpected error occurred' };
   }
 }

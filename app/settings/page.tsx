@@ -37,6 +37,13 @@ export default async function SettingsPage() {
       timezone: 'UTC',
       week_starts_on: 'monday',
       notifications_enabled: true,
+      dashboard_widgets: {
+        habitsChecklist: true,
+        fitnessStatus: true,
+        wellnessLog: true,
+        goalsTracker: true,
+        bodyComposition: true,
+      },
     };
     
     return (
@@ -62,6 +69,13 @@ export default async function SettingsPage() {
     timezone: res.preferences.timezone || 'UTC',
     week_starts_on: res.preferences.week_starts_on || 'monday',
     notifications_enabled: res.preferences.notifications_enabled ?? true,
+    dashboard_widgets: (res.preferences.dashboard_widgets as Record<string, boolean> | null) || {
+      habitsChecklist: true,
+      fitnessStatus: true,
+      wellnessLog: true,
+      goalsTracker: true,
+      bodyComposition: true,
+    },
   };
 
   return (

@@ -3,7 +3,8 @@
 import React, { useState, useTransition } from 'react';
 import { 
   User, Sliders, Database, Download, CheckCircle2, 
-  Loader2, Globe, Calendar, Moon, Sun, Bell, AlertTriangle
+  Loader2, Globe, Calendar, Moon, Sun, Bell, AlertTriangle,
+  Dumbbell, Heart, Target, Activity
 } from 'lucide-react';
 import { toast } from '@/app/hooks/use-toast';
 import { exportUserData } from '@/app/actions/export-actions';
@@ -23,6 +24,7 @@ interface UserPreferences {
   timezone: string;
   week_starts_on: string;
   notifications_enabled: boolean;
+  dashboard_widgets: Record<string, boolean>;
 }
 
 interface SettingsClientProps {
@@ -59,6 +61,15 @@ export default function SettingsClient({ initialProfile, initialPreferences }: S
   const [timezone, setTimezone] = useState(initialPreferences.timezone);
   const [weekStartsOn, setWeekStartsOn] = useState(initialPreferences.week_starts_on);
   const [notificationsEnabled, setNotificationsEnabled] = useState(initialPreferences.notifications_enabled);
+  const [dashboardWidgets, setDashboardWidgets] = useState<Record<string, boolean>>(
+    initialPreferences.dashboard_widgets || {
+      habitsChecklist: true,
+      fitnessStatus: true,
+      wellnessLog: true,
+      goalsTracker: true,
+      bodyComposition: true,
+    }
+  );
   const [isSavingPrefs, startSavingPrefs] = useTransition();
 
   // Data Export States
@@ -128,6 +139,7 @@ export default function SettingsClient({ initialProfile, initialPreferences }: S
         timezone,
         week_starts_on: weekStartsOn,
         notifications_enabled: notificationsEnabled,
+        dashboard_widgets: dashboardWidgets,
       });
 
       if (result.error) {
@@ -514,6 +526,53 @@ export default function SettingsClient({ initialProfile, initialPreferences }: S
                     Enable daily system updates and reminders
                   </span>
                 </label>
+              </div>
+
+              {/* Dashboard Layout Customization */}
+              <div className="space-y-3 md:col-span-2 pt-4 border-t border-white/5">
+                <div>
+                  <h3 className="text-xs font-bold tracking-wider text-zinc-300 uppercase">
+                    Dashboard Layout Customization
+                  </h3>
+                  <p className="text-[11px] text-[#a1a1aa] mt-0.5">
+                    Toggle which cards are visible on your daily today view.
+                  </p>
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                  {[
+                    { key: 'habitsChecklist', label: 'Habits Checklist', icon: CheckCircle2, iconColor: 'text-emerald-400' },
+                    { key: 'fitnessStatus', label: 'Fitness Status', icon: Dumbbell, iconColor: 'text-emerald-400' },
+                    { key: 'wellnessLog', label: 'Wellness Log', icon: Heart, iconColor: 'text-pink-400' },
+                    { key: 'goalsTracker', label: 'Goals Tracker', icon: Target, iconColor: 'text-blue-400' },
+                    { key: 'bodyComposition', label: 'Body Composition', icon: Activity, iconColor: 'text-purple-400' },
+                  ].map((widget) => {
+                    const IconComponent = widget.icon;
+                    return (
+                      <label key={widget.key} className="flex items-center justify-between gap-3 cursor-pointer group p-3 rounded-xl border border-white/5 bg-zinc-950/20 hover:bg-zinc-950/40 hover:border-white/10 transition-all select-none">
+                        <span className="text-xs font-bold text-zinc-300 group-hover:text-white transition-colors flex items-center gap-2">
+                          <IconComponent className={`w-4 h-4 ${widget.iconColor}`} />
+                          {widget.label}
+                        </span>
+                        <div className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={dashboardWidgets[widget.key] ?? true}
+                            disabled={isSavingPrefs}
+                            onChange={(e) => {
+                              setDashboardWidgets(prev => ({
+                                ...prev,
+                                [widget.key]: e.target.checked
+                              }));
+                            }}
+                            className="sr-only peer"
+                          />
+                          <div className="relative w-9 h-5 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500 shrink-0" />
+                        </div>
+                      </label>
+                    );
+                  })}
+                </div>
               </div>
 
             </div>
