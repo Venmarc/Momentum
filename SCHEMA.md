@@ -137,6 +137,7 @@ create table public.user_preferences (
   week_starts_on text default 'monday',
   notifications_enabled boolean default true,
   timezone text default 'UTC',
+  dashboard_widgets jsonb default '{"bodyComposition": true, "wellnessLog": true, "goalsTracker": true, "fitnessStatus": true, "habitsChecklist": true}'::jsonb,
   updated_at timestamp with time zone default now()
 );
 ```
