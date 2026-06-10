@@ -174,3 +174,9 @@ little wellness guide at the bottom in mobile, and by the side in desktop. good
 - Plan and design a personalized Settings system.
 - Allow the user to customize their dashboard by adding or removing individual widgets (e.g., body composition/weight log widget, goals tracker, fitness status, wellness log).
 - Start implementing this customization layout directly on the dashboard first, eventually syncing settings with the user preferences database table.
+
+## Clerk Authentication Customization (Low Priority)
+- Customize the auth page UI to match the Momentum design system.
+- Currently, Clerk uses grey and subtle orange accents, casting a white translucent, opaque overlay over the page.
+- Make the overlay less translucent to match Momentum's dark, premium glassmorphism.
+
