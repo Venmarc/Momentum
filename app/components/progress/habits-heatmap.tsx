@@ -79,7 +79,7 @@ export default function HabitsHeatmap({ logs, habits }: HabitsHeatmapProps) {
       </div>
 
       <div className="overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
-        <div className="flex gap-2 min-w-[540px] justify-start py-2">
+        <div className="flex gap-2 min-w-0 md:min-w-[540px] justify-start py-2">
           {/* Day of week labels */}
           <div className="grid grid-rows-7 gap-1.5 text-[10px] text-[#a1a1aa] pr-2 pt-5 select-none font-medium justify-items-end">
             <span className="h-3 leading-3">Mon</span>
@@ -99,7 +99,10 @@ export default function HabitsHeatmap({ logs, habits }: HabitsHeatmapProps) {
               const isFirstWeekOfMonth = firstDayOfWeek.getDate() <= 7;
               
               return (
-                <div key={wIndex} className="flex flex-col gap-1.5 flex-1 relative">
+                <div 
+                  key={wIndex} 
+                  className={`flex-col gap-1.5 flex-1 relative ${wIndex < 12 ? 'hidden md:flex' : 'flex'}`}
+                >
                   {/* Month header */}
                   <span className="absolute -top-5 left-0 text-[9px] text-[#a1a1aa] font-semibold whitespace-nowrap select-none">
                     {isFirstWeekOfMonth ? format(firstDayOfWeek, 'MMM') : ''}
