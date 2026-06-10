@@ -215,7 +215,7 @@ export default async function TodayPage() {
             </div>
  
             <Link
-              href="/fitness"
+              href="/fitness/log"
               className="w-full mt-2 py-2 bg-[#121214] hover:bg-[#18181b] border border-[#27272a] hover:border-[#3f3f46] rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 text-white transition-colors cursor-pointer outline-none focus:ring-1 focus:ring-[#22c55e]/50"
             >
               Start Workout
