@@ -99,23 +99,25 @@ export default function Navigation() {
           isExpandedVisual ? 'overflow-y-auto overflow-x-hidden' : 'overflow-visible'
         }`}
       >
-        {/* Header/Logo */}
-        <div className={`flex items-center h-16 border-b border-[#1a1a1c] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] justify-between ${isExpandedVisual ? 'px-6' : 'px-4'}`}>
+        <div className={`flex items-center h-16 border-b border-[#1a1a1c] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${isExpandedVisual ? 'justify-between px-6' : 'justify-center'}`}>
           <Link 
             href={user ? "/today" : "/"}
             onClick={handleLogoClick}
-            className="flex items-center gap-2 select-none cursor-pointer group/logo relative"
+            className={`flex items-center select-none cursor-pointer group/logo relative ${
+              isExpandedVisual ? 'gap-2' : 'gap-0'
+            }`}
+            aria-label="Momentum Home"
           >
             <img 
               src="/logo.svg" 
               alt="Momentum Logo" 
-              className="w-8 h-8 rounded-xl bg-brand-success/5 border border-brand-success/20 p-1 object-contain transition-all" 
+              className="w-8 h-8 rounded-xl bg-brand-success/5 border border-brand-success/20 p-1 object-contain transition-all shrink-0" 
             />
-            <span className={`transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] whitespace-nowrap overflow-hidden text-xs font-black tracking-widest text-[#f4f4f5] ${
-              isExpandedVisual ? 'opacity-100 max-w-[100px] translate-x-0' : 'opacity-0 max-w-0 -translate-x-2'
-            }`}>
-              MOMENTUM
-            </span>
+            {isExpandedVisual && (
+              <span className="text-xs font-black tracking-widest text-[#f4f4f5]">
+                MOMENTUM
+              </span>
+            )}
             {!isExpandedVisual && (
               <span className="absolute left-full ml-2.5 top-1/2 -translate-y-1/2 scale-95 opacity-0 group-hover/logo:scale-100 group-hover/logo:opacity-100 group-hover/logo:translate-x-1 transition-all duration-200 ease-out pointer-events-none whitespace-nowrap bg-[#09090b] border border-[#27272a] text-[#e4e4e7] rounded-lg px-2.5 py-1.5 text-[11px] font-medium shadow-xl shadow-black/60 z-50">
                 Expand Sidebar
@@ -127,8 +129,8 @@ export default function Navigation() {
               toggleSidebar();
               setIsHovered(false);
             }} 
-            className={`p-1.5 rounded-lg border border-[#27272a] hover:border-zinc-700 bg-transparent text-[#a1a1aa] hover:text-white cursor-pointer hover:bg-[#121214] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] active-bounce relative group ${
-              isExpandedVisual ? 'opacity-100 scale-100 pointer-events-auto w-auto' : 'opacity-0 scale-90 pointer-events-none w-0 h-0 p-0 border-none overflow-hidden'
+            className={`p-1.5 rounded-lg border border-[#27272a] hover:border-zinc-700 bg-transparent text-[#a1a1aa] hover:text-white cursor-pointer hover:bg-[#121214] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] active-bounce group ${
+              isExpandedVisual ? 'relative opacity-100 scale-100 pointer-events-auto w-auto' : 'absolute opacity-0 scale-90 pointer-events-none w-0 h-0 p-0 border-none overflow-hidden'
             }`}
           >
             {collapsed ? <PanelLeft className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
@@ -191,34 +193,38 @@ export default function Navigation() {
           </Link>
 
           {/* User profile row */}
-          <div className={`flex items-center w-full transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${!isExpandedVisual ? 'justify-center' : 'justify-between gap-3'}`}>
-            <div className="flex items-center gap-3 truncate">
+          <div className={`flex items-center transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${!isExpandedVisual ? 'justify-center w-auto' : 'justify-between gap-3 w-full'}`}>
+            <div className={`flex items-center ${isExpandedVisual ? 'gap-3' : 'gap-0'} relative group`}>
               <UserButton />
-              <div className={`transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden flex flex-col text-left select-none ${
-                isExpandedVisual ? 'opacity-100 max-w-[120px] translate-x-0' : 'opacity-0 max-w-0 -translate-x-2'
-              }`}>
-                <p className="text-xs font-bold text-white leading-tight truncate">{displayName}</p>
-                <p className="text-[10px] text-[#71717a] font-medium leading-tight mt-0.5">Operating System</p>
-              </div>
+              {isExpandedVisual ? (
+                <div className="text-left select-none max-w-[120px] truncate">
+                  <p className="text-xs font-bold text-white leading-tight truncate">{displayName}</p>
+                  <p className="text-[10px] text-[#71717a] font-medium leading-tight mt-0.5">Operating System</p>
+                </div>
+              ) : (
+                <span className="absolute left-full ml-2.5 top-1/2 -translate-y-1/2 scale-95 opacity-0 group-hover:scale-100 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-200 ease-out pointer-events-none whitespace-nowrap bg-[#09090b] border border-[#27272a] text-[#e4e4e7] rounded-lg px-2.5 py-1.5 text-[11px] font-medium shadow-xl shadow-black/60 z-50">
+                  {displayName}
+                </span>
+              )}
             </div>
 
             {/* Expanded State: Settings button next to user profile on the right */}
-            <Link
-              href="/settings"
-              className={`w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] active-bounce shrink-0 relative group ${
-                pathname === '/settings'
-                  ? 'bg-[#18181b] text-brand-success border border-[#27272a]'
-                  : 'text-[#a1a1aa] hover:bg-[#121214] hover:text-[#f4f4f5] border border-transparent hover:border-[#27272a]'
-              } ${
-                isExpandedVisual ? 'opacity-100 scale-100 pointer-events-auto' : 'opacity-0 scale-90 pointer-events-none w-0 h-0 overflow-hidden'
-              }`}
-              aria-label="Settings"
-            >
-              <Settings className={`w-4 h-4 ${pathname === '/settings' ? 'text-brand-success' : ''}`} />
-              <span className="absolute bottom-full mb-2.5 left-1/2 -translate-x-1/2 scale-95 opacity-0 group-hover:scale-100 group-hover:opacity-100 group-hover:-translate-y-1 transition-all duration-200 ease-out pointer-events-none whitespace-nowrap bg-[#09090b] border border-[#27272a] text-[#e4e4e7] rounded-lg px-2.5 py-1.5 text-[11px] font-medium shadow-xl shadow-black/60 z-50">
-                Settings
-              </span>
-            </Link>
+            {isExpandedVisual && (
+              <Link
+                href="/settings"
+                className={`w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] active-bounce shrink-0 relative group ${
+                  pathname === '/settings'
+                    ? 'bg-[#18181b] text-brand-success border border-[#27272a]'
+                    : 'text-[#a1a1aa] hover:bg-[#121214] hover:text-[#f4f4f5] border border-transparent hover:border-[#27272a]'
+                }`}
+                aria-label="Settings"
+              >
+                <Settings className={`w-4 h-4 ${pathname === '/settings' ? 'text-brand-success' : ''}`} />
+                <span className="absolute bottom-full mb-2.5 left-1/2 -translate-x-1/2 scale-95 opacity-0 group-hover:scale-100 group-hover:opacity-100 group-hover:-translate-y-1 transition-all duration-200 ease-out pointer-events-none whitespace-nowrap bg-[#09090b] border border-[#27272a] text-[#e4e4e7] rounded-lg px-2.5 py-1.5 text-[11px] font-medium shadow-xl shadow-black/60 z-50">
+                  Settings
+                </span>
+              </Link>
+            )}
           </div>
         </div>
       </aside>
